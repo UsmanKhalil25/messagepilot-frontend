@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 
 import {
   Form,
@@ -18,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { LoadingText } from "@/components/ui/loading-text";
 import { MainLogo } from "@/components/ui/main-logo";
 
+import { API_ENDPOINTS, HTTP_METHOD } from "@/config/api";
 import { RegisterSchema } from "../schemas/register.type";
 import { registerSchema } from "../schemas/register.schema";
 
@@ -34,8 +36,32 @@ export function RegisterForm() {
     },
   });
 
-  const onSubmit = async (data: RegisterSchema) => {
-    console.log(data);
+  const { mutate: registerUser, isPending } = useMutation({
+    mutationFn: async (data: RegisterSchema) => {
+      const response = await fetch(API_ENDPOINTS.AUTH.REGISTER, {
+        method: HTTP_METHOD.POST,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
+      return result;
+    },
+    onSuccess: (data) => {
+      console.log("User registered successfully");
+    },
+    onError: (error) => {
+      console.error("Error registering user:", error);
+    },
+  });
+
+  const onSubmit = (data: RegisterSchema) => {
+    registerUser(data);
   };
 
   return (
@@ -131,16 +157,15 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-
             <Button
               type="submit"
               className="w-full"
+              disabled={isPending}
               aria-live="polite"
             >
-              "Sign Up"
+              {isPending ? <LoadingText text="Signing up..." /> : "Sign up"}
             </Button>
           </form>
-
         </div>
       </Form>
 
