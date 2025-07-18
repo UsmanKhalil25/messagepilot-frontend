@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 
 import {
   Form,
@@ -15,24 +17,49 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { LoadingText } from "@/components/ui/loading-text";
 import { MainLogo } from "@/components/ui/main-logo";
 
+import { API_ENDPOINTS, HTTP_METHOD } from "@/config/api";
 import { LoginSchema } from "../schemas/login.type";
 import { loginSchema } from "../schemas/login.schema";
 
 export function LoginForm() {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = async (data: LoginSchema) => {
-    console.log(data)
+  const { mutate: loginUser, isPending } = useMutation({
+    mutationFn: async (data: LoginSchema) => {
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+        method: HTTP_METHOD.POST,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message)
+      }
+      return result;
+    },
+    onSuccess: (_) => {
+      toast.success("Log in successful!")
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  });
+
+  const onSubmit = (data: LoginSchema) => {
+    loginUser(data);
   };
 
   return (
@@ -105,10 +132,10 @@ export function LoginForm() {
             <Button
               type="submit"
               className="w-full"
-              disabled={isSubmitting}
+              disabled={isPending}
               aria-live="polite"
             >
-              {isSubmitting ? <LoadingText text="Logging in..." /> : "Login"}
+              {isPending ? <LoadingText text="Logging in..." /> : "Login"}
             </Button>
           </form>
         </div>

@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { LoadingText } from "@/components/ui/loading-text";
 import { MainLogo } from "@/components/ui/main-logo";
@@ -52,11 +53,21 @@ export function RegisterForm() {
       }
       return result;
     },
-    onSuccess: (data) => {
-      console.log("User registered successfully");
+    onSuccess: (_) => {
+      const promise = (): Promise<void> =>
+        new Promise((resolve) => setTimeout(resolve, 2000));
+
+      toast.promise(promise(), {
+        loading: 'Finalizing registration...',
+        success: () => {
+          router.push("/login");
+          return 'Registration successful! Please log in to start using the platform.';
+        },
+        error: 'Registration failed. Please try again.',
+      });
     },
     onError: (error) => {
-      console.error("Error registering user:", error);
+      toast.error(error.message)
     },
   });
 
