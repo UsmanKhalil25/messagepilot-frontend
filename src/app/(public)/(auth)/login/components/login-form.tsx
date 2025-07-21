@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
 
 import {
   Form,
@@ -42,19 +40,21 @@ export function LoginForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        credentials: "include",
       });
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message)
+        throw new Error(result.message || "Login failed");
       }
       return result;
     },
-    onSuccess: (_) => {
-      toast.success("Log in successful!")
+    onSuccess: () => {
+      toast.success("Login successful!");
+      router.push("/dashboard");
     },
     onError: (error) => {
-      toast.error(error.message)
+      toast.error(error.message || "Login failed");
     },
   });
 

@@ -1,2 +1,2 @@
-export * from "./endpoints"
-export * from "./http-methods"
+export * from "./endpoints";
+export * from "./http-methods";

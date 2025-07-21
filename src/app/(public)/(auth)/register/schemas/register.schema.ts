@@ -11,4 +11,3 @@ export const registerSchema = z
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });
-

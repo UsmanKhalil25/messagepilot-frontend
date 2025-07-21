@@ -53,21 +53,22 @@ export function RegisterForm() {
       }
       return result;
     },
-    onSuccess: (_) => {
+
+    onSuccess: () => {
       const promise = (): Promise<void> =>
         new Promise((resolve) => setTimeout(resolve, 2000));
 
       toast.promise(promise(), {
-        loading: 'Finalizing registration...',
+        loading: "Finalizing registration...",
         success: () => {
           router.push("/login");
-          return 'Registration successful! Please log in to start using the platform.';
+          return "Registration successful! Please log in to start using the platform.";
         },
-        error: 'Registration failed. Please try again.',
+        error: "Registration failed. Please try again.",
       });
     },
     onError: (error) => {
-      toast.error(error.message)
+      toast.error(error.message);
     },
   });
 
