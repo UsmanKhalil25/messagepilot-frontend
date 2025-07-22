@@ -51,9 +51,8 @@ export default async function middleware(req: NextRequest) {
     req.headers.get("authorization")?.replace("Bearer ", "");
 
   const isAuthRoute = /^\/api\/auth\//.test(path);
-  const isPublicApiRoute = /^\/api\/public\//.test(path);
 
-  if (path.startsWith("/api") && !isAuthRoute && !isPublicApiRoute) {
+  if (path.startsWith("/api") && !isAuthRoute) {
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
