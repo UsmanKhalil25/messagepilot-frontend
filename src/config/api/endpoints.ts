@@ -6,4 +6,5 @@ export const API_ENDPOINTS = {
     LOGIN: `${API_BASE_URL}/api/auth/login`,
     VERIFY: `${API_BASE_URL}/api/auth/verify`,
   },
+  GRAPHQL: `${API_BASE_URL}/graphql`
 };
