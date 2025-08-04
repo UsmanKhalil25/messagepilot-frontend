@@ -21,7 +21,7 @@ import { LoadingText } from "@/components/ui/loading-text";
 import { MainLogo } from "@/components/ui/main-logo";
 
 import { API_ENDPOINTS, HTTP_METHOD } from "@/config/api";
-import { RegisterSchema } from "../schemas/register.type";
+import type { RegisterSchema } from "../schemas/register.type";
 import { registerSchema } from "../schemas/register.schema";
 
 export function RegisterForm() {

@@ -1,12 +1,11 @@
-"use client"
+"use client";
 
-import { motion } from "motion/react"
-import { useState } from "react"
+import { motion } from "motion/react";
+import { useState } from "react";
 import {
   Mail,
   MessageSquare,
   MoreHorizontal,
-  Plus,
   Search,
   Filter,
   Target,
@@ -18,25 +17,42 @@ import {
   Play,
   Pause,
   Calendar,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import CreateCampaignDialog from "./components/create-campaign-dialog"
-
+import { CreateCampaignDialog } from "./components/create-campaign-dialog";
 // Sample campaigns data
 const initialCampaigns = [
   {
@@ -111,50 +127,52 @@ const initialCampaigns = [
     subject: "Welcome to Our Community!",
     description: "Onboarding email series for new users",
   },
-]
+];
 
 function getStatusBadgeVariant(status: string) {
   switch (status.toLowerCase()) {
     case "active":
-      return "default"
+      return "default";
     case "completed":
-      return "secondary"
+      return "secondary";
     case "scheduled":
-      return "outline"
+      return "outline";
     case "draft":
-      return "secondary"
+      return "secondary";
     default:
-      return "secondary"
+      return "secondary";
   }
 }
 
 export default function CampaignsPage() {
-  const [campaigns, setCampaigns] = useState(initialCampaigns)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [campaigns, setCampaigns] = useState(initialCampaigns);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newCampaign, setNewCampaign] = useState({
     name: "",
     type: "Email",
     subject: "",
     description: "",
     total: "",
-  })
+  });
 
   // Filter campaigns based on search and filters
   const filteredCampaigns = campaigns.filter((campaign) => {
     const matchesSearch =
       campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      campaign.subject.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || campaign.status.toLowerCase() === statusFilter
-    const matchesType = typeFilter === "all" || campaign.type.toLowerCase() === typeFilter
+      campaign.subject.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || campaign.status.toLowerCase() === statusFilter;
+    const matchesType =
+      typeFilter === "all" || campaign.type.toLowerCase() === typeFilter;
 
-    return matchesSearch && matchesStatus && matchesType
-  })
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
   const handleCreateCampaign = () => {
-    if (!newCampaign.name || !newCampaign.subject || !newCampaign.total) return
+    if (!newCampaign.name || !newCampaign.subject || !newCampaign.total) return;
 
     const campaign = {
       id: campaigns.length + 1,
@@ -167,22 +185,22 @@ export default function CampaignsPage() {
       createdAt: new Date().toISOString().split("T")[0],
       subject: newCampaign.subject,
       description: newCampaign.description,
-    }
+    };
 
-    setCampaigns([campaign, ...campaigns])
+    setCampaigns([campaign, ...campaigns]);
     setNewCampaign({
       name: "",
       type: "Email",
       subject: "",
       description: "",
       total: "",
-    })
-    setIsCreateDialogOpen(false)
-  }
+    });
+    setIsCreateDialogOpen(false);
+  };
 
   const handleDeleteCampaign = (id: number) => {
-    setCampaigns(campaigns.filter((campaign) => campaign.id !== id))
-  }
+    setCampaigns(campaigns.filter((campaign) => campaign.id !== id));
+  };
 
   const handleDuplicateCampaign = (campaign: any) => {
     const duplicated = {
@@ -193,16 +211,16 @@ export default function CampaignsPage() {
       sent: 0,
       lastUpdated: "Just now",
       createdAt: new Date().toISOString().split("T")[0],
-    }
-    setCampaigns([duplicated, ...campaigns])
-  }
+    };
+    setCampaigns([duplicated, ...campaigns]);
+  };
 
   const stats = {
     total: campaigns.length,
     active: campaigns.filter((c) => c.status === "Active").length,
     scheduled: campaigns.filter((c) => c.status === "Scheduled").length,
     draft: campaigns.filter((c) => c.status === "Draft").length,
-  }
+  };
 
   return (
     <main className="flex-1 space-y-6 p-6">
@@ -215,7 +233,9 @@ export default function CampaignsPage() {
       >
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Campaigns</h2>
-          <p className="text-muted-foreground">Manage and monitor all your marketing campaigns</p>
+          <p className="text-muted-foreground">
+            Manage and monitor all your marketing campaigns
+          </p>
         </div>
         <CreateCampaignDialog />
       </motion.div>
@@ -229,7 +249,9 @@ export default function CampaignsPage() {
       >
         <Card className="rounded-2xl shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Campaigns</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Campaigns
+            </CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -242,7 +264,9 @@ export default function CampaignsPage() {
             <Play className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.active}
+            </div>
           </CardContent>
         </Card>
         <Card className="rounded-2xl shadow-sm">
@@ -251,7 +275,9 @@ export default function CampaignsPage() {
             <Calendar className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.scheduled}</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {stats.scheduled}
+            </div>
           </CardContent>
         </Card>
         <Card className="rounded-2xl shadow-sm">
@@ -260,7 +286,9 @@ export default function CampaignsPage() {
             <Edit className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.draft}</div>
+            <div className="text-2xl font-bold text-orange-600">
+              {stats.draft}
+            </div>
           </CardContent>
         </Card>
       </motion.div>
@@ -346,7 +374,9 @@ export default function CampaignsPage() {
                     <TableCell>
                       <div>
                         <div className="font-medium">{campaign.name}</div>
-                        <div className="text-sm text-muted-foreground truncate max-w-[200px]">{campaign.subject}</div>
+                        <div className="text-sm text-muted-foreground truncate max-w-[200px]">
+                          {campaign.subject}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -360,12 +390,15 @@ export default function CampaignsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusBadgeVariant(campaign.status)}>{campaign.status}</Badge>
+                      <Badge variant={getStatusBadgeVariant(campaign.status)}>
+                        {campaign.status}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span className="text-sm">
-                          {campaign.sent.toLocaleString()} / {campaign.total.toLocaleString()}
+                          {campaign.sent.toLocaleString()} /{" "}
+                          {campaign.total.toLocaleString()}
                         </span>
                         <div className="h-2 w-20 rounded-full bg-muted">
                           <div
@@ -380,12 +413,19 @@ export default function CampaignsPage() {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{campaign.createdAt}</TableCell>
-                    <TableCell className="text-muted-foreground">{campaign.lastUpdated}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {campaign.createdAt}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {campaign.lastUpdated}
+                    </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100">
+                          <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100"
+                          >
                             <span className="sr-only">Open menu</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
@@ -399,7 +439,9 @@ export default function CampaignsPage() {
                             <Edit className="mr-2 h-4 w-4" />
                             Edit campaign
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDuplicateCampaign(campaign)}>
+                          <DropdownMenuItem
+                            onClick={() => handleDuplicateCampaign(campaign)}
+                          >
                             <Copy className="mr-2 h-4 w-4" />
                             Duplicate
                           </DropdownMenuItem>
@@ -430,11 +472,13 @@ export default function CampaignsPage() {
               </TableBody>
             </Table>
             {filteredCampaigns.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">No campaigns found matching your criteria.</div>
+              <div className="text-center py-8 text-muted-foreground">
+                No campaigns found matching your criteria.
+              </div>
             )}
           </CardContent>
         </Card>
       </motion.div>
     </main>
-  )
+  );
 }

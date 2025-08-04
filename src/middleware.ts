@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const protectedRoutes = ["/dashboard", "/admin", "/settings"];
+const protectedRoutes = ["/dashboard", "/campaigns"];
 const publicRoutes = ["/login", "/register", "/"];
 const cookieName = "auth-token";
-
 
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -18,7 +17,6 @@ export default async function middleware(req: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
   }
 
   if (protectedRoutes.some((route) => path.startsWith(route))) {

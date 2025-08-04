@@ -21,7 +21,7 @@ import { LoadingText } from "@/components/ui/loading-text";
 import { MainLogo } from "@/components/ui/main-logo";
 
 import { API_ENDPOINTS, HTTP_METHOD } from "@/config/api";
-import { LoginSchema } from "../schemas/login.type";
+import type { LoginSchema } from "../schemas/login.type";
 import { loginSchema } from "../schemas/login.schema";
 
 export function LoginForm() {

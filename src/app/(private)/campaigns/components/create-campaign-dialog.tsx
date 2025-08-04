@@ -1,9 +1,19 @@
-"use client"
+import { Plus, Mail, MessageSquare } from "lucide-react";
 
-import { Plus } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Dialog,
   DialogClose,
@@ -13,99 +23,229 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { LoadingText } from "@/components/ui/loading-text";
 
-import { CreateCampaignForm } from "../schemas/create-campaign.type"
-import { createCampaignSchema } from "../schemas/create-campaign.schema"
+import { capitalize } from "@/common/utils/string.utils";
+import { CampaignStatus } from "@/common/enums/campaign-status.enum";
+import { CampaignChannel } from "@/common/enums/campaign-channel.enum";
+import type { CreateCampaignForm } from "../schemas/create-campaign.type";
+import { createCampaignSchema } from "../schemas/create-campaign.schema";
+import { useFetch } from "@/hooks/use-fetch";
+import { CAMPAIGN_STATUS_COLORS } from "@/common/constants/campaign.constants";
 
-export default function CreateCampaignDialog() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-  } = useForm<CreateCampaignForm>({
+const CREATABLE_CAMPAIGN_STATUSES: CampaignStatus[] = [
+  CampaignStatus.DRAFT,
+  CampaignStatus.QUEUED,
+];
+
+export function CreateCampaignDialog() {
+  const fetch = useFetch();
+  const [open, setOpen] = useState(false);
+  const form = useForm<CreateCampaignForm>({
     resolver: zodResolver(createCampaignSchema),
-  })
+    defaultValues: {
+      title: "",
+      description: "",
+      channelType: CampaignChannel.EMAIL,
+      status: undefined,
+    },
+  });
+
+  const { mutate: createCampaign, isPending } = useMutation({
+    mutationFn: async (data: CreateCampaignForm) => {
+      const response = await fetch({
+        query: `
+            mutation CreateCampaign($input: CreateCampaignInput!) {
+              createCampaign(input: $input) {
+                id
+                title
+                description
+                status
+                channelType
+                createdAt
+                updatedAt
+              }
+            }
+          `,
+        variables: {
+          input: {
+            title: data.title,
+            description: data.description,
+            channelType: data.channelType,
+            status: data.status || CampaignStatus.DRAFT,
+          },
+        },
+      });
+
+      const result = await response.json();
+      if (result.errors && result.errors.length > 0) {
+        throw new Error(result.errors[0].message || "GraphQL error");
+      }
+
+      return result.data.createCampaign;
+    },
+    onSuccess: () => {
+      toast.success("Campaign created successfully!");
+      form.reset();
+      setOpen(false);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create campaign");
+    },
+  });
+
+  const getChannelIcon = (channel: CampaignChannel) => {
+    const iconProps = { className: "h-4 w-4" };
+    switch (channel) {
+      case CampaignChannel.EMAIL:
+        return <Mail {...iconProps} />;
+      case CampaignChannel.SMS:
+        return <MessageSquare {...iconProps} />;
+      default:
+        return <Mail {...iconProps} />;
+    }
+  };
 
   const onSubmit = (data: CreateCampaignForm) => {
-    console.log(data)
-  }
+    createCampaign(data);
+  };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Campaign
-        </Button>
-      </DialogTrigger>
-
-      <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit(onSubmit)}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Form {...form}>
+        <DialogTrigger asChild>
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Create Campaign
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Create Campaign</DialogTitle>
-            <DialogDescription>Fill in the campaign details below.</DialogDescription>
+            <DialogDescription>
+              Fill in the details below to create a new campaign.
+            </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" {...register("title")} />
-              {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
-            </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter campaign title" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="Enter campaign description"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea id="description" {...register('description')} rows={4} />
-              {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="channelType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Channel Type</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a channel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.values(CampaignChannel).map((channel) => (
+                            <SelectItem key={channel} value={channel}>
+                              <div className="flex items-center gap-2">
+                                {getChannelIcon(channel)}
+                                <span>{capitalize(channel.toLowerCase())}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CREATABLE_CAMPAIGN_STATUSES.map((status) => (
+                            <SelectItem key={status} value={status}>
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className={`w-2 h-2 rounded-full ${CAMPAIGN_STATUS_COLORS[status]}`}
+                                />
+                                <span>{capitalize(status)}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-
-            <div className="grid gap-2">
-              <Label>Channel Type</Label>
-              <Select onValueChange={(value) => setValue("channelType", value as any)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select channel" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="EMAIL">Email</SelectItem>
-                  <SelectItem value="SMS">SMS</SelectItem>
-                  <SelectItem value="WHATSAPP">WhatsApp</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.channelType && <p className="text-sm text-red-500">{errors.channelType.message}</p>}
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Status (optional)</Label>
-              <Select onValueChange={(value) => setValue("status", value as any)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="DRAFT">Draft</SelectItem>
-                  <SelectItem value="PAUSED">Paused</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.status && <p className="text-sm text-red-500">{errors.status.message}</p>}
-            </div>
-          </div>
-
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Create</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
+            <DialogFooter className="mt-4">
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? <LoadingText text="Creating..." /> : "Create"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Form>
     </Dialog>
-  )
+  );
 }
-
