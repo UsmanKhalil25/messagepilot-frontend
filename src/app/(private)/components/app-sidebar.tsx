@@ -61,7 +61,6 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const isActive = (url: string) => {
     const path = url;
-    console.log(url === currentPath);
     return currentPath === path;
   };
 

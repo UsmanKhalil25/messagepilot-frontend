@@ -1,0 +1,18 @@
+fragment CampaignFields on Campaign {
+  id
+  title
+  description
+  status
+  channelType
+  contactIds
+  createdAt
+  updatedAt
+}
+
+fragment CampaignFormFields on Campaign {
+  id
+  title
+  description
+  status
+  channelType
+}
