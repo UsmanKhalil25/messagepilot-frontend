@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -20,9 +20,11 @@ import { Input } from "@/components/ui/input";
 import { LoadingText } from "@/components/ui/loading-text";
 import { MainLogo } from "@/components/ui/main-logo";
 
-import { API_ENDPOINTS, HTTP_METHOD } from "@/config/api";
-import type { LoginSchema } from "../schemas/login.type";
+import { LOGIN_MUTATION } from "@/graphql/mutations/login";
+import type { LoginUserInput, LoginResponse } from "@/__generated__/graphql";
 import { loginSchema } from "../schemas/login.schema";
+
+type LoginSchema = LoginUserInput;
 
 export function LoginForm() {
   const router = useRouter();
@@ -32,34 +34,22 @@ export function LoginForm() {
     defaultValues: { email: "", password: "" },
   });
 
-  const { mutate: loginUser, isPending } = useMutation({
-    mutationFn: async (data: LoginSchema) => {
-      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
-        method: HTTP_METHOD.POST,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
-      }
-      return result;
-    },
-    onSuccess: () => {
-      toast.success("Login successful!");
-      router.push("/dashboard");
-    },
-    onError: (error) => {
-      toast.error(error.message || "Login failed");
-    },
-  });
+  const [login, { loading }] = useMutation<
+    LoginResponse,
+    { input: LoginUserInput }
+  >(LOGIN_MUTATION);
 
   const onSubmit = (data: LoginSchema) => {
-    loginUser(data);
+    login({
+      variables: { input: data },
+      onCompleted: () => {
+        toast.success("Login successful");
+        router.push("/dashboard");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Login failed");
+      },
+    });
   };
 
   return (
@@ -132,10 +122,10 @@ export function LoginForm() {
             <Button
               type="submit"
               className="w-full"
-              disabled={isPending}
+              disabled={loading}
               aria-live="polite"
             >
-              {isPending ? <LoadingText text="Logging in..." /> : "Login"}
+              {loading ? <LoadingText text="Logging in..." /> : "Login"}
             </Button>
           </form>
         </div>
