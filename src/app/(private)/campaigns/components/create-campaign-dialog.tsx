@@ -2,9 +2,7 @@ import { Plus, Mail, MessageSquare } from "lucide-react";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 
 import {
   Form,
@@ -41,7 +39,6 @@ import { CampaignStatus } from "@/common/enums/campaign-status.enum";
 import { CampaignChannel } from "@/common/enums/campaign-channel.enum";
 import type { CreateCampaignForm } from "../schemas/create-campaign.type";
 import { createCampaignSchema } from "../schemas/create-campaign.schema";
-import { useFetch } from "@/hooks/use-fetch";
 import { CAMPAIGN_STATUS_COLORS } from "@/common/constants/campaign.constants";
 
 const CREATABLE_CAMPAIGN_STATUSES: CampaignStatus[] = [
@@ -50,7 +47,6 @@ const CREATABLE_CAMPAIGN_STATUSES: CampaignStatus[] = [
 ];
 
 export function CreateCampaignDialog() {
-  const fetch = useFetch();
   const [open, setOpen] = useState(false);
   const form = useForm<CreateCampaignForm>({
     resolver: zodResolver(createCampaignSchema),
@@ -59,49 +55,6 @@ export function CreateCampaignDialog() {
       description: "",
       channelType: CampaignChannel.EMAIL,
       status: undefined,
-    },
-  });
-
-  const { mutate: createCampaign, isPending } = useMutation({
-    mutationFn: async (data: CreateCampaignForm) => {
-      const response = await fetch({
-        query: `
-            mutation CreateCampaign($input: CreateCampaignInput!) {
-              createCampaign(input: $input) {
-                id
-                title
-                description
-                status
-                channelType
-                createdAt
-                updatedAt
-              }
-            }
-          `,
-        variables: {
-          input: {
-            title: data.title,
-            description: data.description,
-            channelType: data.channelType,
-            status: data.status || CampaignStatus.DRAFT,
-          },
-        },
-      });
-
-      const result = await response.json();
-      if (result.errors && result.errors.length > 0) {
-        throw new Error(result.errors[0].message || "GraphQL error");
-      }
-
-      return result.data.createCampaign;
-    },
-    onSuccess: () => {
-      toast.success("Campaign created successfully!");
-      form.reset();
-      setOpen(false);
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to create campaign");
     },
   });
 
@@ -118,7 +71,7 @@ export function CreateCampaignDialog() {
   };
 
   const onSubmit = (data: CreateCampaignForm) => {
-    createCampaign(data);
+    console.log("data: ", data);
   };
 
   return (
@@ -239,8 +192,8 @@ export function CreateCampaignDialog() {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? <LoadingText text="Creating..." /> : "Create"}
+              <Button type="submit" disabled={false}>
+                {false ? <LoadingText text="Creating..." /> : "Create"}
               </Button>
             </DialogFooter>
           </form>
