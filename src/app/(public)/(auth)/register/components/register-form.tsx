@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "@apollo/client";
 
 import {
   Form,
@@ -20,9 +20,14 @@ import { Input } from "@/components/ui/input";
 import { LoadingText } from "@/components/ui/loading-text";
 import { MainLogo } from "@/components/ui/main-logo";
 
-import { API_ENDPOINTS, HTTP_METHOD } from "@/config/api";
-import type { RegisterSchema } from "../schemas/register.type";
+import { REGISTER_MUTATION } from "@/graphql/mutations/register";
+import type {
+  RegisterUserInput,
+  RegisterResponse,
+} from "@/__generated__/graphql";
 import { registerSchema } from "../schemas/register.schema";
+
+type RegisterSchema = RegisterUserInput;
 
 export function RegisterForm() {
   const router = useRouter();
@@ -37,43 +42,22 @@ export function RegisterForm() {
     },
   });
 
-  const { mutate: registerUser, isPending } = useMutation({
-    mutationFn: async (data: RegisterSchema) => {
-      const response = await fetch(API_ENDPOINTS.AUTH.REGISTER, {
-        method: HTTP_METHOD.POST,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message);
-      }
-      return result;
-    },
-
-    onSuccess: () => {
-      const promise = (): Promise<void> =>
-        new Promise((resolve) => setTimeout(resolve, 2000));
-
-      toast.promise(promise(), {
-        loading: "Finalizing registration...",
-        success: () => {
-          router.push("/login");
-          return "Registration successful! Please log in to start using the platform.";
-        },
-        error: "Registration failed. Please try again.",
-      });
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const [register, { loading }] = useMutation<
+    RegisterResponse,
+    { input: RegisterUserInput }
+  >(REGISTER_MUTATION);
 
   const onSubmit = (data: RegisterSchema) => {
-    registerUser(data);
+    register({
+      variables: { input: data },
+      onCompleted: () => {
+        toast.success("User created successfully");
+        router.push("/login");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Registeration failed");
+      },
+    });
   };
 
   return (
@@ -172,10 +156,10 @@ export function RegisterForm() {
             <Button
               type="submit"
               className="w-full"
-              disabled={isPending}
+              disabled={loading}
               aria-live="polite"
             >
-              {isPending ? <LoadingText text="Signing up..." /> : "Sign up"}
+              {loading ? <LoadingText text="Signing up..." /> : "Sign up"}
             </Button>
           </form>
         </div>

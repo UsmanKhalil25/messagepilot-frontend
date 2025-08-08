@@ -1,7 +1,0 @@
-#import "../fragments/campaign.fragments.gql"
-
-mutation CreateCampaign($input: CreateCampaignInput!) {
-  createCampaign(input: $input) {
-    ...CampaignFormFields
-  }
-}
