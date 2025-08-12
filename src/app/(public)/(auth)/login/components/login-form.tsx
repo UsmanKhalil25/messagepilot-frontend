@@ -44,6 +44,7 @@ export function LoginForm() {
       variables: { input: data },
       onCompleted: () => {
         toast.success("Login successful");
+        console.log("pushed to dashboard");
         router.push("/dashboard");
       },
       onError: (error) => {
