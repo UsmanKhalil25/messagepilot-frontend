@@ -20,6 +20,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { CampaignsTableRow } from "./camapigns-table-row";
 import { CampaignsTableRowSkeleton } from "./campaigns-table-skeleton";
+import { CampaignsPagination } from "./campaigns-pagination";
 import { CAMPAIGNS } from "@/graphql/queries/campaigns";
 import { useSearchFilters } from "../hooks/use-search-filter";
 
@@ -34,6 +35,10 @@ function CampaignsTable() {
 
   const campaigns = data?.campaigns?.campaigns ?? [];
   const totalCount = data?.campaigns?.pagination.total ?? 0;
+  const currentPage = data?.campaigns?.pagination.page ?? 1;
+  const totalPages = data?.campaigns?.pagination.totalPages ?? 1;
+  const hasNextPage = data?.campaigns?.pagination.hasNextPage ?? false;
+  const hasPreviousPage = data?.campaigns?.pagination.hasPreviousPage ?? false;
 
   if (error && !loading && campaigns.length === 0) {
     return (
@@ -78,7 +83,6 @@ function CampaignsTable() {
           <CardDescription>Browse and manage your campaigns</CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Show error alert if there's an error but we have some data */}
           {error && campaigns.length > 0 && (
             <Alert variant="default" className="mb-4">
               <AlertDescription>
@@ -122,6 +126,17 @@ function CampaignsTable() {
               )}
             </TableBody>
           </Table>
+
+          {!loading && totalPages > 1 && (
+            <div className="mt-6 flex justify-center">
+              <CampaignsPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                hasNextPage={hasNextPage}
+                hasPreviousPage={hasPreviousPage}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
