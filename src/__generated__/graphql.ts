@@ -56,6 +56,15 @@ export enum CampaignChannel {
   Whatsapp = "WHATSAPP",
 }
 
+export type CampaignChannelStats = {
+  __typename?: "CampaignChannelStats";
+  discord: Scalars["Int"]["output"];
+  email: Scalars["Int"]["output"];
+  slack: Scalars["Int"]["output"];
+  sms: Scalars["Int"]["output"];
+  whatsapp: Scalars["Int"]["output"];
+};
+
 export type CampaignFiltersInput = {
   createdAfter?: InputMaybe<Scalars["String"]["input"]>;
   createdBefore?: InputMaybe<Scalars["String"]["input"]>;
@@ -72,6 +81,13 @@ export enum CampaignSortBy {
   UpdatedAt = "UPDATED_AT",
 }
 
+export type CampaignStats = {
+  __typename?: "CampaignStats";
+  campaignsByChannel: CampaignChannelStats;
+  campaignsByStatus: CampaignStatusStats;
+  totalCampaigns: Scalars["Int"]["output"];
+};
+
 export enum CampaignStatus {
   Active = "ACTIVE",
   Completed = "COMPLETED",
@@ -79,6 +95,15 @@ export enum CampaignStatus {
   Failed = "FAILED",
   Queued = "QUEUED",
 }
+
+export type CampaignStatusStats = {
+  __typename?: "CampaignStatusStats";
+  active: Scalars["Int"]["output"];
+  completed: Scalars["Int"]["output"];
+  draft: Scalars["Int"]["output"];
+  failed: Scalars["Int"]["output"];
+  queued: Scalars["Int"]["output"];
+};
 
 export type CampaignsResponse = {
   __typename?: "CampaignsResponse";
@@ -190,6 +215,7 @@ export type PublicUser = {
 export type Query = {
   __typename?: "Query";
   campaign: Campaign;
+  campaignStats: CampaignStats;
   campaigns: CampaignsResponse;
   currentUser?: Maybe<User>;
 };
@@ -232,6 +258,25 @@ export type User = {
   updatedAt: Scalars["DateTime"]["output"];
 };
 
+export type CreateCampaignMutationVariables = Exact<{
+  input: CreateCampaignInput;
+}>;
+
+export type CreateCampaignMutation = {
+  __typename?: "Mutation";
+  createCampaign: {
+    __typename?: "Campaign";
+    id: string;
+    title: string;
+    description: string;
+    channelType: CampaignChannel;
+    status: CampaignStatus;
+    createdAt: any;
+    updatedAt: any;
+    contacts: Array<{ __typename?: "Contact"; id: string; name: string }>;
+  };
+};
+
 export type LoginMutationVariables = Exact<{
   input: LoginUserInput;
 }>;
@@ -268,6 +313,136 @@ export type RegisterMutation = {
   };
 };
 
+export type CampaignStatsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type CampaignStatsQuery = {
+  __typename?: "Query";
+  campaignStats: {
+    __typename?: "CampaignStats";
+    totalCampaigns: number;
+    campaignsByStatus: {
+      __typename?: "CampaignStatusStats";
+      draft: number;
+      queued: number;
+      active: number;
+      completed: number;
+      failed: number;
+    };
+    campaignsByChannel: {
+      __typename?: "CampaignChannelStats";
+      email: number;
+      sms: number;
+      whatsapp: number;
+      slack: number;
+      discord: number;
+    };
+  };
+};
+
+export type GetCampaignsQueryVariables = Exact<{
+  filters?: InputMaybe<CampaignFiltersInput>;
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
+  page?: InputMaybe<Scalars["Int"]["input"]>;
+}>;
+
+export type GetCampaignsQuery = {
+  __typename?: "Query";
+  campaigns: {
+    __typename?: "CampaignsResponse";
+    campaigns: Array<{
+      __typename?: "Campaign";
+      id: string;
+      title: string;
+      description: string;
+      status: CampaignStatus;
+      channelType: CampaignChannel;
+      createdAt: any;
+      updatedAt: any;
+      contacts: Array<{ __typename?: "Contact"; id: string; name: string }>;
+    }>;
+    pagination: {
+      __typename?: "PaginationInfo";
+      total: number;
+      page: number;
+      totalPages: number;
+      limit: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  };
+};
+
+export const CreateCampaignDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateCampaign" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateCampaignInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createCampaign" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+                { kind: "Field", name: { kind: "Name", value: "channelType" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "contacts" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateCampaignMutation,
+  CreateCampaignMutationVariables
+>;
 export const LoginDocument = {
   kind: "Document",
   definitions: [
@@ -394,3 +569,225 @@ export const RegisterDocument = {
     },
   ],
 } as unknown as DocumentNode<RegisterMutation, RegisterMutationVariables>;
+export const CampaignStatsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "CampaignStats" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "campaignStats" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "totalCampaigns" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "campaignsByStatus" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "draft" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "queued" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "active" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "completed" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "failed" },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "campaignsByChannel" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "email" } },
+                      { kind: "Field", name: { kind: "Name", value: "sms" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "whatsapp" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "slack" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "discord" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CampaignStatsQuery, CampaignStatsQueryVariables>;
+export const GetCampaignsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GetCampaigns" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "filters" },
+          },
+          type: {
+            kind: "NamedType",
+            name: { kind: "Name", value: "CampaignFiltersInput" },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "limit" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "page" } },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "campaigns" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "filters" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "filters" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "limit" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "limit" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "page" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "page" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "campaigns" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "channelType" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "createdAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "updatedAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "contacts" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "name" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "pagination" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "total" } },
+                      { kind: "Field", name: { kind: "Name", value: "page" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "totalPages" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "limit" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "hasNextPage" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "hasPreviousPage" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetCampaignsQuery, GetCampaignsQueryVariables>;

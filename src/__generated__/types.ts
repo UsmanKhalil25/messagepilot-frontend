@@ -53,6 +53,15 @@ export enum CampaignChannel {
   Whatsapp = "WHATSAPP",
 }
 
+export type CampaignChannelStats = {
+  __typename?: "CampaignChannelStats";
+  discord: Scalars["Int"]["output"];
+  email: Scalars["Int"]["output"];
+  slack: Scalars["Int"]["output"];
+  sms: Scalars["Int"]["output"];
+  whatsapp: Scalars["Int"]["output"];
+};
+
 export type CampaignFiltersInput = {
   createdAfter?: InputMaybe<Scalars["String"]["input"]>;
   createdBefore?: InputMaybe<Scalars["String"]["input"]>;
@@ -69,6 +78,13 @@ export enum CampaignSortBy {
   UpdatedAt = "UPDATED_AT",
 }
 
+export type CampaignStats = {
+  __typename?: "CampaignStats";
+  campaignsByChannel: CampaignChannelStats;
+  campaignsByStatus: CampaignStatusStats;
+  totalCampaigns: Scalars["Int"]["output"];
+};
+
 export enum CampaignStatus {
   Active = "ACTIVE",
   Completed = "COMPLETED",
@@ -76,6 +92,15 @@ export enum CampaignStatus {
   Failed = "FAILED",
   Queued = "QUEUED",
 }
+
+export type CampaignStatusStats = {
+  __typename?: "CampaignStatusStats";
+  active: Scalars["Int"]["output"];
+  completed: Scalars["Int"]["output"];
+  draft: Scalars["Int"]["output"];
+  failed: Scalars["Int"]["output"];
+  queued: Scalars["Int"]["output"];
+};
 
 export type CampaignsResponse = {
   __typename?: "CampaignsResponse";
@@ -187,6 +212,7 @@ export type PublicUser = {
 export type Query = {
   __typename?: "Query";
   campaign: Campaign;
+  campaignStats: CampaignStats;
   campaigns: CampaignsResponse;
   currentUser?: Maybe<User>;
 };
@@ -229,6 +255,25 @@ export type User = {
   updatedAt: Scalars["DateTime"]["output"];
 };
 
+export type CreateCampaignMutationVariables = Exact<{
+  input: CreateCampaignInput;
+}>;
+
+export type CreateCampaignMutation = {
+  __typename?: "Mutation";
+  createCampaign: {
+    __typename?: "Campaign";
+    id: string;
+    title: string;
+    description: string;
+    channelType: CampaignChannel;
+    status: CampaignStatus;
+    createdAt: any;
+    updatedAt: any;
+    contacts: Array<{ __typename?: "Contact"; id: string; name: string }>;
+  };
+};
+
 export type LoginMutationVariables = Exact<{
   input: LoginUserInput;
 }>;
@@ -261,6 +306,65 @@ export type RegisterMutation = {
       id: string;
       email: string;
       name: string;
+    };
+  };
+};
+
+export type CampaignStatsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type CampaignStatsQuery = {
+  __typename?: "Query";
+  campaignStats: {
+    __typename?: "CampaignStats";
+    totalCampaigns: number;
+    campaignsByStatus: {
+      __typename?: "CampaignStatusStats";
+      draft: number;
+      queued: number;
+      active: number;
+      completed: number;
+      failed: number;
+    };
+    campaignsByChannel: {
+      __typename?: "CampaignChannelStats";
+      email: number;
+      sms: number;
+      whatsapp: number;
+      slack: number;
+      discord: number;
+    };
+  };
+};
+
+export type GetCampaignsQueryVariables = Exact<{
+  filters?: InputMaybe<CampaignFiltersInput>;
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
+  page?: InputMaybe<Scalars["Int"]["input"]>;
+}>;
+
+export type GetCampaignsQuery = {
+  __typename?: "Query";
+  campaigns: {
+    __typename?: "CampaignsResponse";
+    campaigns: Array<{
+      __typename?: "Campaign";
+      id: string;
+      title: string;
+      description: string;
+      status: CampaignStatus;
+      channelType: CampaignChannel;
+      createdAt: any;
+      updatedAt: any;
+      contacts: Array<{ __typename?: "Contact"; id: string; name: string }>;
+    }>;
+    pagination: {
+      __typename?: "PaginationInfo";
+      total: number;
+      page: number;
+      totalPages: number;
+      limit: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
     };
   };
 };

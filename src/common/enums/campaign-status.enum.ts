@@ -1,9 +1,9 @@
 export enum CampaignStatus {
-  DRAFT = "DRAFT",
-  QUEUED = "QUEUED",
-  ACTIVE = "ACTIVE",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
+  DRAFT = "draft",
+  QUEUED = "queued",
+  ACTIVE = "active",
+  COMPLETED = "completed",
+  FAILED = "failed",
 }
 
 export const campaignStatusValues = Object.values(CampaignStatus);

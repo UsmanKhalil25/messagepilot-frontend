@@ -1,10 +1,11 @@
+"use client";
+
 import { Plus, Mail, MessageSquare } from "lucide-react";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 
 import {
   Form,
@@ -37,88 +38,65 @@ import {
 import { LoadingText } from "@/components/ui/loading-text";
 
 import { capitalize } from "@/common/utils/string.utils";
-import { CampaignStatus } from "@/common/enums/campaign-status.enum";
-import { CampaignChannel } from "@/common/enums/campaign-channel.enum";
-import type { CreateCampaignForm } from "../schemas/create-campaign.type";
-import { createCampaignSchema } from "../schemas/create-campaign.schema";
-import { useFetch } from "@/hooks/use-fetch";
 import { CAMPAIGN_STATUS_COLORS } from "@/common/constants/campaign.constants";
 
+import { CAMPAIGNS } from "@/graphql/queries/campaigns";
+import { CREATE_CAMPAIGN } from "@/graphql/mutations/create-campaign";
+import { CAMPAIGN_STATS } from "@/graphql/queries/campaign-stats";
+import type { Campaign, CreateCampaignInput } from "@/__generated__/graphql";
+import { CampaignChannel, CampaignStatus } from "@/__generated__/graphql";
+import { createCampaignSchema } from "../schemas/create-campaign.schema";
+import { toast } from "sonner";
+
 const CREATABLE_CAMPAIGN_STATUSES: CampaignStatus[] = [
-  CampaignStatus.DRAFT,
-  CampaignStatus.QUEUED,
+  CampaignStatus.Queued,
+  CampaignStatus.Draft,
 ];
 
+type CreateCampaignSchema = CreateCampaignInput;
+
 export function CreateCampaignDialog() {
-  const fetch = useFetch();
   const [open, setOpen] = useState(false);
-  const form = useForm<CreateCampaignForm>({
+
+  const form = useForm<CreateCampaignSchema>({
     resolver: zodResolver(createCampaignSchema),
     defaultValues: {
       title: "",
       description: "",
-      channelType: CampaignChannel.EMAIL,
+      channelType: CampaignChannel.Email,
       status: undefined,
-    },
-  });
-
-  const { mutate: createCampaign, isPending } = useMutation({
-    mutationFn: async (data: CreateCampaignForm) => {
-      const response = await fetch({
-        query: `
-            mutation CreateCampaign($input: CreateCampaignInput!) {
-              createCampaign(input: $input) {
-                id
-                title
-                description
-                status
-                channelType
-                createdAt
-                updatedAt
-              }
-            }
-          `,
-        variables: {
-          input: {
-            title: data.title,
-            description: data.description,
-            channelType: data.channelType,
-            status: data.status || CampaignStatus.DRAFT,
-          },
-        },
-      });
-
-      const result = await response.json();
-      if (result.errors && result.errors.length > 0) {
-        throw new Error(result.errors[0].message || "GraphQL error");
-      }
-
-      return result.data.createCampaign;
-    },
-    onSuccess: () => {
-      toast.success("Campaign created successfully!");
-      form.reset();
-      setOpen(false);
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to create campaign");
     },
   });
 
   const getChannelIcon = (channel: CampaignChannel) => {
     const iconProps = { className: "h-4 w-4" };
     switch (channel) {
-      case CampaignChannel.EMAIL:
+      case CampaignChannel.Email:
         return <Mail {...iconProps} />;
-      case CampaignChannel.SMS:
+      case CampaignChannel.Sms:
         return <MessageSquare {...iconProps} />;
       default:
         return <Mail {...iconProps} />;
     }
   };
 
-  const onSubmit = (data: CreateCampaignForm) => {
-    createCampaign(data);
+  const [createCampaign, { loading }] = useMutation<
+    Campaign,
+    { input: CreateCampaignInput }
+  >(CREATE_CAMPAIGN);
+  const onSubmit = (data: CreateCampaignSchema) => {
+    createCampaign({
+      variables: { input: data },
+      refetchQueries: [{ query: CAMPAIGN_STATS }, { query: CAMPAIGNS }],
+      onCompleted: () => {
+        toast.success("Campaign created successfull");
+        form.reset();
+        setOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to create a campaign");
+      },
+    });
   };
 
   return (
@@ -208,7 +186,7 @@ export function CreateCampaignDialog() {
                     <FormLabel>Status</FormLabel>
                     <FormControl>
                       <Select
-                        value={field.value}
+                        value={field.value || ""}
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger>
@@ -239,8 +217,8 @@ export function CreateCampaignDialog() {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? <LoadingText text="Creating..." /> : "Create"}
+              <Button type="submit" disabled={loading}>
+                {loading ? <LoadingText text="Creating..." /> : "Create"}
               </Button>
             </DialogFooter>
           </form>

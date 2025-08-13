@@ -11,14 +11,6 @@ export default async function middleware(req: NextRequest) {
     req.cookies.get(cookieName)?.value ||
     req.headers.get("authorization")?.replace("Bearer ", "");
 
-  const isAuthRoute = /^\/api\/auth\//.test(path);
-
-  if (path.startsWith("/api") && !isAuthRoute) {
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-  }
-
   if (protectedRoutes.some((route) => path.startsWith(route))) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", req.nextUrl));
