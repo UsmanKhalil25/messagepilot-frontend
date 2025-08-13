@@ -2,10 +2,11 @@
 
 import { useDebouncedCallback } from "use-debounce";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const DEBOUNCE_TIME = 300;
 
@@ -13,6 +14,8 @@ function CampaignsSearch() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
+
+  const currentQuery = searchParams.get("query")?.toString() || "";
 
   const handleSearch = useDebouncedCallback((term) => {
     const params = new URLSearchParams(searchParams);
@@ -25,9 +28,16 @@ function CampaignsSearch() {
     replace(`${pathname}?${params.toString()}`);
   }, DEBOUNCE_TIME);
 
+  const clearSearch = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("query");
+    params.set("page", "1");
+    replace(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <motion.div
-      className="relative flex-1"
+      className="relative flex-1 max-w-xl"
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
@@ -35,13 +45,24 @@ function CampaignsSearch() {
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <form>
         <Input
-          type="search"
-          placeholder="Search campaigns..."
+          type="input"
+          placeholder="Search campaigns by name, status, or description..."
           onChange={(e) => handleSearch(e.target.value)}
-          defaultValue={searchParams.get("query")?.toString()}
-          className="pl-10"
+          defaultValue={currentQuery}
+          className="pl-10 pr-10 h-10 bg-background border-border focus:ring-2 focus:ring-primary/20"
         />
       </form>
+      {currentQuery && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={clearSearch}
+          className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted"
+        >
+          <X className="h-3 w-3" />
+          <span className="sr-only">Clear search</span>
+        </Button>
+      )}
     </motion.div>
   );
 }
