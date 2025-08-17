@@ -30,7 +30,6 @@ export default function CampaignsPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
-        className="bg-card border rounded-lg p-4 space-y-4"
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <CampaignsSearch />

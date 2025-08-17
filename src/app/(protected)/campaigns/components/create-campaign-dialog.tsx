@@ -1,11 +1,13 @@
 "use client";
 
-import { Plus, Mail, MessageSquare } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { useSearchFilters } from "../hooks/use-search-filter";
 
 import {
   Form,
@@ -17,10 +19,8 @@ import {
 } from "@/components/ui/form";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -36,17 +36,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LoadingText } from "@/components/ui/loading-text";
+import { CommunicationChannelSelect } from "@/components/ui/communication-channel-select";
 
 import { capitalize } from "@/common/utils/string.utils";
-import { CAMPAIGN_STATUS_COLORS } from "@/common/constants/campaign.constants";
+import { CAMPAIGN_STATUS_COLORS } from "@/common/constants/campaign-status-colors";
 
 import { CAMPAIGNS } from "@/graphql/queries/campaigns";
 import { CREATE_CAMPAIGN } from "@/graphql/mutations/create-campaign";
 import { CAMPAIGN_STATS } from "@/graphql/queries/campaign-stats";
 import type { Campaign, CreateCampaignInput } from "@/__generated__/graphql";
-import { CampaignChannel, CampaignStatus } from "@/__generated__/graphql";
+import { CommunicationChannel, CampaignStatus } from "@/__generated__/graphql";
 import { createCampaignSchema } from "../schemas/create-campaign.schema";
-import { toast } from "sonner";
 
 const CREATABLE_CAMPAIGN_STATUSES: CampaignStatus[] = [
   CampaignStatus.Queued,
@@ -57,28 +57,17 @@ type CreateCampaignSchema = CreateCampaignInput;
 
 export function CreateCampaignDialog() {
   const [open, setOpen] = useState(false);
+  const searchFilters = useSearchFilters();
 
   const form = useForm<CreateCampaignSchema>({
     resolver: zodResolver(createCampaignSchema),
     defaultValues: {
       title: "",
       description: "",
-      channelType: CampaignChannel.Email,
+      channelType: CommunicationChannel.Email,
       status: undefined,
     },
   });
-
-  const getChannelIcon = (channel: CampaignChannel) => {
-    const iconProps = { className: "h-4 w-4" };
-    switch (channel) {
-      case CampaignChannel.Email:
-        return <Mail {...iconProps} />;
-      case CampaignChannel.Sms:
-        return <MessageSquare {...iconProps} />;
-      default:
-        return <Mail {...iconProps} />;
-    }
-  };
 
   const [createCampaign, { loading }] = useMutation<
     Campaign,
@@ -87,7 +76,10 @@ export function CreateCampaignDialog() {
   const onSubmit = (data: CreateCampaignSchema) => {
     createCampaign({
       variables: { input: data },
-      refetchQueries: [{ query: CAMPAIGN_STATS }, { query: CAMPAIGNS }],
+      refetchQueries: () => [
+        { query: CAMPAIGN_STATS },
+        { query: CAMPAIGNS, variables: searchFilters },
+      ],
       onCompleted: () => {
         toast.success("Campaign created successfull");
         form.reset();
@@ -101,21 +93,21 @@ export function CreateCampaignDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Form {...form}>
-        <DialogTrigger asChild>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create Campaign
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Create Campaign</DialogTitle>
-            <DialogDescription>
-              Fill in the details below to create a new campaign.
-            </DialogDescription>
-          </DialogHeader>
+      <DialogTrigger asChild>
+        <Button className="gap-2">
+          <Plus className="h-4 w-4" />
+          Create Campaign
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Create Campaign</DialogTitle>
+          <DialogDescription>
+            Fill in the details below to create a new campaign.
+          </DialogDescription>
+        </DialogHeader>
 
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
             <FormField
               control={form.control}
@@ -155,24 +147,11 @@ export function CreateCampaignDialog() {
                   <FormItem>
                     <FormLabel>Channel Type</FormLabel>
                     <FormControl>
-                      <Select
+                      <CommunicationChannelSelect
                         value={field.value}
                         onValueChange={field.onChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a channel" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.values(CampaignChannel).map((channel) => (
-                            <SelectItem key={channel} value={channel}>
-                              <div className="flex items-center gap-2">
-                                {getChannelIcon(channel)}
-                                <span>{capitalize(channel.toLowerCase())}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        placeholder="Select a channel"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -211,19 +190,27 @@ export function CreateCampaignDialog() {
                 )}
               />
             </div>
-            <DialogFooter className="mt-4">
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button type="submit" disabled={loading}>
-                {loading ? <LoadingText text="Creating..." /> : "Create"}
+
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => form.reset()}
+              >
+                Reset
               </Button>
-            </DialogFooter>
+
+              <Button type="submit" disabled={loading}>
+                {loading ? (
+                  <LoadingText text="Creating..." />
+                ) : (
+                  "Create Campaign"
+                )}
+              </Button>
+            </div>
           </form>
-        </DialogContent>
-      </Form>
+        </Form>
+      </DialogContent>
     </Dialog>
   );
 }

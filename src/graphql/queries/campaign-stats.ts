@@ -14,9 +14,6 @@ export const CAMPAIGN_STATS = gql(`
       campaignsByChannel {
         email
         sms
-        whatsapp
-        slack
-        discord
       }
     }
   }

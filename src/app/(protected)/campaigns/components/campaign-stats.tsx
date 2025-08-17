@@ -6,11 +6,10 @@ import { Target, Play, Calendar, Edit } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { CAMPAIGN_STATS } from "@/graphql/queries/campaign-stats";
 
 export function CampaignStats() {
-  const { data: campaigns, loading } = useQuery(CAMPAIGN_STATS);
+  const { data: campaigns, loading, error } = useQuery(CAMPAIGN_STATS);
 
   const stats = {
     total: campaigns?.campaignStats.totalCampaigns,
@@ -25,6 +24,10 @@ export function CampaignStats() {
     ) : (
       <div className={`text-2xl font-bold ${color ?? ""}`}>{value}</div>
     );
+
+  if (!loading && error) {
+    return null;
+  }
 
   return (
     <motion.div

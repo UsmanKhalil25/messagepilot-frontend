@@ -18,7 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { CampaignsTableRow } from "./camapigns-table-row";
 import { CampaignsTableRowSkeleton } from "./campaigns-table-skeleton";
@@ -123,14 +122,6 @@ function CampaignsTable() {
           <CardDescription>Browse and manage your campaigns</CardDescription>
         </CardHeader>
         <CardContent>
-          {error && campaigns.length > 0 && (
-            <Alert variant="default" className="mb-4">
-              <AlertDescription>
-                Some data may be outdated due to a connection issue.
-              </AlertDescription>
-            </Alert>
-          )}
-
           {!loading && campaigns.length === 0 && !error ? (
             <EmptyState />
           ) : (
@@ -159,7 +150,6 @@ function CampaignsTable() {
                       ))}
                 </TableBody>
               </Table>
-
               {!loading && totalPages > 1 && (
                 <div className="mt-6 flex justify-center">
                   <CampaignsPagination
