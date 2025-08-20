@@ -16,6 +16,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { SingleContactForm } from "./single-contact-form";
+import { BulkImportContactForm } from "./bulk-import-contact-form";
 
 function CreateContactDialog() {
   const [open, setOpen] = useState(false);
@@ -44,7 +45,9 @@ function CreateContactDialog() {
           <TabsContent value="single">
             <SingleContactForm />
           </TabsContent>
-          <TabsContent value="bulk">Change your password here.</TabsContent>
+          <TabsContent value="bulk">
+            <BulkImportContactForm />
+          </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>

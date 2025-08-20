@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { LoadingText } from "@/components/ui/loading-text";
 import { CommunicationChannelSelect } from "@/components/ui/communication-channel-select";
 
 import {
@@ -160,8 +161,9 @@ function SingleContactForm() {
           <Button type="button" variant="outline" onClick={() => form.reset()}>
             Reset
           </Button>
-          <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? "Creating..." : "Create Contact"}
+
+          <Button type="submit" disabled={loading}>
+            {loading ? <LoadingText text="Creating..." /> : "Create Contact"}
           </Button>
         </div>
       </form>

@@ -24,6 +24,7 @@ export default function CampaignsPage() {
         </div>
         <CreateCampaignDialog />
       </motion.div>
+
       <CampaignStats />
 
       <motion.div
