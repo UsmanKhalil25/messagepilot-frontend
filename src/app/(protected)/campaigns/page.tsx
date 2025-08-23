@@ -1,9 +1,10 @@
 "use client";
 import { motion } from "motion/react";
 
+import { QuerySearch } from "@/components/ui/query-search";
+
 import { CreateCampaignDialog } from "./components/create-campaign-dialog";
 import { CampaignStats } from "./components/campaign-stats";
-import { CampaignsSearch } from "./components/campaigns-search";
 import { CampaignsFilters } from "./components/campaigns-filters";
 import { CampaignsTable } from "./components/campaigns-table";
 
@@ -28,15 +29,17 @@ export default function CampaignsPage() {
       <CampaignStats />
 
       <motion.div
+        className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <CampaignsSearch />
-          <div className="flex-shrink-0">
-            <CampaignsFilters />
-          </div>
+        <QuerySearch
+          placeholder="Search campaigns by name..."
+          paramName="query"
+        />
+        <div className="flex-shrink-0">
+          <CampaignsFilters />
         </div>
       </motion.div>
       <CampaignsTable />

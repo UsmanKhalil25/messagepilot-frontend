@@ -1,7 +1,10 @@
 "use client";
 import { motion } from "motion/react";
 
+import { QuerySearch } from "@/components/ui/query-search";
+
 import { CreateContactDialog } from "./components/create-contact-dialog";
+import { ContactsFilters } from "./components/contacts-filters";
 
 export default function ContactsPage() {
   return (
@@ -19,6 +22,22 @@ export default function ContactsPage() {
           </p>
         </div>
         <CreateContactDialog />
+      </motion.div>
+
+      <motion.div
+        className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
+        <QuerySearch
+          placeholder="Search contacts by name, email, or sms number..."
+          paramName="query"
+        />
+
+        <div className="flex-shrink-0">
+          <ContactsFilters />
+        </div>
       </motion.div>
     </main>
   );

@@ -1,15 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import {
-  Filter,
-  Check,
-  ChevronDown,
-  Calendar,
-  Tag,
-  ArrowUpDown,
-} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Calendar, Tag, Filter, Check, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,27 +11,37 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 
+import { SortByFilter } from "@/components/ui/sort-by-filter";
+import { SortOrderButton, SortOrder } from "@/components/ui/sort-order-button";
+
 interface StatusFilterConfig {
   label: string;
   bgColor: string;
 }
 
+const statusConfigs: Record<string, StatusFilterConfig> = {
+  all: { label: "All Status", bgColor: "bg-muted" },
+  active: { label: "Active", bgColor: "bg-green-500" },
+  queued: { label: "Queued", bgColor: "bg-blue-500" },
+  completed: { label: "Completed", bgColor: "bg-emerald-500" },
+  draft: { label: "Draft", bgColor: "bg-gray-400" },
+  failed: { label: "Failed", bgColor: "bg-red-500" },
+};
+
+const sortOptions = [
+  { value: "created_at", label: "Created Date", icon: Calendar },
+  { value: "updated_at", label: "Updated Date", icon: Calendar },
+  { value: "name", label: "Name", icon: Tag },
+  { value: "status", label: "Status", icon: Filter },
+];
+
 interface StatusFilterProps {
-  statusFilter: string;
-  updateQueryParam: (key: string, value: string) => void;
+  selected: string;
+  onChange: (key: string, value: string) => void;
 }
 
-function StatusFilter({ statusFilter, updateQueryParam }: StatusFilterProps) {
-  const statusConfigs: Record<string, StatusFilterConfig> = {
-    all: { label: "All Status", bgColor: "bg-muted" },
-    active: { label: "Active", bgColor: "bg-green-500" },
-    queued: { label: "Queued", bgColor: "bg-blue-500" },
-    completed: { label: "Completed", bgColor: "bg-emerald-500" },
-    draft: { label: "Draft", bgColor: "bg-gray-400" },
-    failed: { label: "Failed", bgColor: "bg-red-500" },
-  };
-
-  const currentConfig = statusConfigs[statusFilter] || statusConfigs.all;
+function StatusFilter({ selected, onChange }: StatusFilterProps) {
+  const currentConfig = statusConfigs[selected] || statusConfigs.all;
 
   return (
     <Popover>
@@ -67,104 +69,19 @@ function StatusFilter({ statusFilter, updateQueryParam }: StatusFilterProps) {
             <Button
               key={value}
               variant="ghost"
-              className={`w-full justify-start h-9 px-2 ${statusFilter === value ? "bg-accent text-accent-foreground" : ""}`}
-              onClick={() => updateQueryParam("status", value)}
+              className={`w-full justify-start h-9 px-2 ${
+                selected === value ? "bg-accent text-accent-foreground" : ""
+              }`}
+              onClick={() => onChange("status", value)}
             >
               <div className={`w-2 h-2 rounded-full ${config.bgColor} mr-3`} />
               <span className="text-sm">{config.label}</span>
-              {statusFilter === value && <Check className="ml-auto h-3 w-3" />}
+              {selected === value && <Check className="ml-auto h-3 w-3" />}
             </Button>
           ))}
         </div>
       </PopoverContent>
     </Popover>
-  );
-}
-
-interface SortOption {
-  value: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-interface SortByFilterProps {
-  sortBy: string;
-  updateQueryParam: (key: string, value: string) => void;
-}
-
-function SortByFilter({ sortBy, updateQueryParam }: SortByFilterProps) {
-  const sortOptions: SortOption[] = [
-    { value: "created_at", label: "Created Date", icon: Calendar },
-    { value: "updated_at", label: "Updated Date", icon: Calendar },
-    { value: "name", label: "Name", icon: Tag },
-    { value: "status", label: "Status", icon: Filter },
-  ];
-
-  const currentOption = sortOptions.find((option) => option.value === sortBy) || sortOptions[0];
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          className="h-10 px-4 rounded-none border-0 bg-transparent hover:bg-background/80"
-        >
-          <div className="flex items-center gap-2">
-            <currentOption.icon className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium w-[100px] truncate">
-              {currentOption.label}
-            </span>
-            <ChevronDown className="h-4 w-4 opacity-50" />
-          </div>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-48 p-2" align="start">
-        <div className="space-y-1">
-          <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
-            Sort by
-          </div>
-          <Separator />
-          {sortOptions.map(({ value, label, icon: Icon }) => (
-            <Button
-              key={value}
-              variant="ghost"
-              className={`w-full justify-start h-9 px-2 ${sortBy === value ? "bg-accent text-accent-foreground" : ""}`}
-              onClick={() => updateQueryParam("sortBy", value)}
-            >
-              <Icon className="h-4 w-4 mr-3 text-muted-foreground" />
-              <span className="text-sm">{label}</span>
-              {sortBy === value && <Check className="ml-auto h-3 w-3" />}
-            </Button>
-          ))}
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-interface SortOrderButtonProps {
-  sortOrder: string;
-  updateQueryParam: (key: string, value: string) => void;
-}
-
-function SortOrderButton({ sortOrder, updateQueryParam }: SortOrderButtonProps) {
-  const handleToggle = () => {
-    updateQueryParam("sortOrder", sortOrder === "desc" ? "asc" : "desc");
-  };
-
-  return (
-    <Button
-      variant="ghost"
-      className="h-10 px-4 rounded-none border-0 bg-transparent hover:bg-background/80"
-      onClick={handleToggle}
-    >
-      <div className="flex items-center gap-2">
-        <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium w-[60px] truncate">
-          {sortOrder === "desc" ? "Newest" : "Oldest"}
-        </span>
-      </div>
-    </Button>
   );
 }
 
@@ -172,41 +89,42 @@ function CampaignsFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const statusFilter = searchParams.get("status") || "all";
+  const status = searchParams.get("status") || "all";
   const sortBy = searchParams.get("sortBy") || "created_at";
-  const sortOrder = searchParams.get("sortOrder") || "desc";
+  const sortOrder = (searchParams.get("sortOrder") as SortOrder) || "desc";
 
   const updateQueryParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams);
-    if (value === "all" && key === "status") {
+
+    if (key === "status" && value === "all") {
       params.delete(key);
     } else {
       params.set(key, value);
     }
+
     router.push(`?${params.toString()}`);
   };
 
   return (
-    <motion.div
-      className="flex items-center gap-3 flex-wrap"
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-    >
-      <StatusFilter
-        statusFilter={statusFilter}
-        updateQueryParam={updateQueryParam}
-      />
+    <div className="flex items-center gap-3 flex-wrap">
+      <StatusFilter selected={status} onChange={updateQueryParam} />
 
       <div className="flex items-center bg-muted/40 rounded-lg border border-border/60 overflow-hidden">
-        <SortByFilter sortBy={sortBy} updateQueryParam={updateQueryParam} />
+        <SortByFilter
+          paramKey="sortBy"
+          selected={sortBy}
+          onChange={updateQueryParam}
+          options={sortOptions}
+        />
         <Separator orientation="vertical" className="h-6" />
         <SortOrderButton
-          sortOrder={sortOrder}
-          updateQueryParam={updateQueryParam}
+          paramKey="sortOrder"
+          selected={sortOrder}
+          onChange={updateQueryParam}
+          labels={{ asc: "Oldest", desc: "Newest" }}
         />
       </div>
-    </motion.div>
+    </div>
   );
 }
 

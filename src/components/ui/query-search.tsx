@@ -10,43 +10,45 @@ import { Button } from "@/components/ui/button";
 
 const DEBOUNCE_TIME = 300;
 
-function CampaignsSearch() {
+interface QuerySearchProps {
+  placeholder: string;
+  paramName?: string;
+}
+
+function QuerySearch({ placeholder, paramName = "query" }: QuerySearchProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  const currentQuery = searchParams.get("query")?.toString() || "";
+  const currentQuery = searchParams.get(paramName)?.toString() || "";
 
-  const handleSearch = useDebouncedCallback((term) => {
+  const handleSearch = useDebouncedCallback((term: string) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", "1");
+
     if (term) {
-      params.set("query", term);
+      params.set(paramName, term);
     } else {
-      params.delete("query");
+      params.delete(paramName);
     }
+
     replace(`${pathname}?${params.toString()}`);
   }, DEBOUNCE_TIME);
 
   const clearSearch = () => {
     const params = new URLSearchParams(searchParams);
-    params.delete("query");
+    params.delete(paramName);
     params.set("page", "1");
     replace(`${pathname}?${params.toString()}`);
   };
 
   return (
-    <motion.div
-      className="relative flex-1"
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-    >
+    <div className="relative flex-1">
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <form>
         <Input
-          type="input"
-          placeholder="Search campaigns by name, status, or description..."
+          type="text"
+          placeholder={placeholder}
           onChange={(e) => handleSearch(e.target.value)}
           defaultValue={currentQuery}
           className="pl-10 pr-10 h-10 bg-background border-border focus:ring-2 focus:ring-primary/20"
@@ -63,8 +65,8 @@ function CampaignsSearch() {
           <span className="sr-only">Clear search</span>
         </Button>
       )}
-    </motion.div>
+    </div>
   );
 }
 
-export { CampaignsSearch };
+export { QuerySearch };
