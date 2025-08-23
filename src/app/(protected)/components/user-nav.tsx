@@ -70,6 +70,7 @@ export function UserNav() {
 
   const getGroupedItems = (groupName: string) =>
     DROPDOWN_OPTIONS.filter((item) => item.group === groupName);
+
   if (loading) {
     return <UserNavSkeleton />;
   }

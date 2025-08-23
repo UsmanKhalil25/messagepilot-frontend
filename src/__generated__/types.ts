@@ -304,6 +304,13 @@ export type User = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type BulkCreateContactsMutationVariables = Exact<{
+  input: BulkCreateContactInput;
+}>;
+
+
+export type BulkCreateContactsMutation = { __typename?: 'Mutation', bulkCreateContact: { __typename?: 'BulkCreateContactResponse', created: Array<{ __typename?: 'Contact', id: string, name: string, contactChannels: Array<{ __typename?: 'ContactChannel', id: string, type: CommunicationChannel, value: string }> }>, errors: Array<{ __typename?: 'BulkCreateContactError', index: number, error: string }>, summary: { __typename?: 'BulkCreateContactSummary', total: number, successful: number, failed: number } } };
+
 export type CreateCampaignMutationVariables = Exact<{
   input: CreateCampaignInput;
 }>;
@@ -345,3 +352,8 @@ export type GetCampaignsQueryVariables = Exact<{
 
 
 export type GetCampaignsQuery = { __typename?: 'Query', campaigns: { __typename?: 'CampaignsResponse', campaigns: Array<{ __typename?: 'Campaign', id: string, title: string, description: string, status: CampaignStatus, channelType: CommunicationChannel, createdAt: any, updatedAt: any, contacts: Array<{ __typename?: 'Contact', id: string, name: string }> }>, pagination: { __typename?: 'PaginationInfo', total: number, page: number, totalPages: number, limit: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
+
+export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'User', id: string, email: string, name: string } | null };

@@ -10,6 +10,7 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -18,13 +19,18 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 
+interface StatusFilterConfig {
+  label: string;
+  bgColor: string;
+}
+
 interface StatusFilterProps {
   statusFilter: string;
   updateQueryParam: (key: string, value: string) => void;
 }
 
 function StatusFilter({ statusFilter, updateQueryParam }: StatusFilterProps) {
-  const configs: Record<string, { label: string; bgColor: string }> = {
+  const statusConfigs: Record<string, StatusFilterConfig> = {
     all: { label: "All Status", bgColor: "bg-muted" },
     active: { label: "Active", bgColor: "bg-green-500" },
     queued: { label: "Queued", bgColor: "bg-blue-500" },
@@ -33,7 +39,7 @@ function StatusFilter({ statusFilter, updateQueryParam }: StatusFilterProps) {
     failed: { label: "Failed", bgColor: "bg-red-500" },
   };
 
-  const current = configs[statusFilter] || configs.all;
+  const currentConfig = statusConfigs[statusFilter] || statusConfigs.all;
 
   return (
     <Popover>
@@ -43,9 +49,9 @@ function StatusFilter({ statusFilter, updateQueryParam }: StatusFilterProps) {
           className="h-10 px-4 justify-between min-w-[140px] bg-background hover:bg-muted/50 border-border/60"
         >
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${current.bgColor}`} />
+            <div className={`w-2 h-2 rounded-full ${currentConfig.bgColor}`} />
             <span className="text-sm font-medium w-[80px] truncate">
-              {current.label}
+              {currentConfig.label}
             </span>
           </div>
           <ChevronDown className="h-4 w-4 opacity-50" />
@@ -57,15 +63,15 @@ function StatusFilter({ statusFilter, updateQueryParam }: StatusFilterProps) {
             Filter by Status
           </div>
           <Separator />
-          {Object.entries(configs).map(([value, { label, bgColor }]) => (
+          {Object.entries(statusConfigs).map(([value, config]) => (
             <Button
               key={value}
               variant="ghost"
               className={`w-full justify-start h-9 px-2 ${statusFilter === value ? "bg-accent text-accent-foreground" : ""}`}
               onClick={() => updateQueryParam("status", value)}
             >
-              <div className={`w-2 h-2 rounded-full ${bgColor} mr-3`} />
-              <span className="text-sm">{label}</span>
+              <div className={`w-2 h-2 rounded-full ${config.bgColor} mr-3`} />
+              <span className="text-sm">{config.label}</span>
               {statusFilter === value && <Check className="ml-auto h-3 w-3" />}
             </Button>
           ))}
@@ -75,19 +81,26 @@ function StatusFilter({ statusFilter, updateQueryParam }: StatusFilterProps) {
   );
 }
 
+interface SortOption {
+  value: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
 interface SortByFilterProps {
   sortBy: string;
   updateQueryParam: (key: string, value: string) => void;
 }
+
 function SortByFilter({ sortBy, updateQueryParam }: SortByFilterProps) {
-  const options = [
+  const sortOptions: SortOption[] = [
     { value: "created_at", label: "Created Date", icon: Calendar },
     { value: "updated_at", label: "Updated Date", icon: Calendar },
     { value: "name", label: "Name", icon: Tag },
     { value: "status", label: "Status", icon: Filter },
   ];
 
-  const current = options.find((o) => o.value === sortBy) || options[0];
+  const currentOption = sortOptions.find((option) => option.value === sortBy) || sortOptions[0];
 
   return (
     <Popover>
@@ -97,9 +110,9 @@ function SortByFilter({ sortBy, updateQueryParam }: SortByFilterProps) {
           className="h-10 px-4 rounded-none border-0 bg-transparent hover:bg-background/80"
         >
           <div className="flex items-center gap-2">
-            <current.icon className="h-4 w-4 text-muted-foreground" />
+            <currentOption.icon className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium w-[100px] truncate">
-              {current.label}
+              {currentOption.label}
             </span>
             <ChevronDown className="h-4 w-4 opacity-50" />
           </div>
@@ -111,7 +124,7 @@ function SortByFilter({ sortBy, updateQueryParam }: SortByFilterProps) {
             Sort by
           </div>
           <Separator />
-          {options.map(({ value, label, icon: Icon }) => (
+          {sortOptions.map(({ value, label, icon: Icon }) => (
             <Button
               key={value}
               variant="ghost"
@@ -134,17 +147,16 @@ interface SortOrderButtonProps {
   updateQueryParam: (key: string, value: string) => void;
 }
 
-function SortOrderButton({
-  sortOrder,
-  updateQueryParam,
-}: SortOrderButtonProps) {
+function SortOrderButton({ sortOrder, updateQueryParam }: SortOrderButtonProps) {
+  const handleToggle = () => {
+    updateQueryParam("sortOrder", sortOrder === "desc" ? "asc" : "desc");
+  };
+
   return (
     <Button
       variant="ghost"
       className="h-10 px-4 rounded-none border-0 bg-transparent hover:bg-background/80"
-      onClick={() =>
-        updateQueryParam("sortOrder", sortOrder === "desc" ? "asc" : "desc")
-      }
+      onClick={handleToggle}
     >
       <div className="flex items-center gap-2">
         <ArrowUpDown className="h-4 w-4 text-muted-foreground" />

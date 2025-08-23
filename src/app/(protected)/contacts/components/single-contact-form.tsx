@@ -24,10 +24,77 @@ import {
 } from "@/__generated__/graphql";
 import { createContactSchema } from "../schemas/create-contact.schema";
 import { CREATE_CONTACT } from "@/graphql/mutations/create-contact";
-type CreateContactSchema = CreateContactInput;
 
-function SingleContactForm() {
-  const form = useForm<CreateContactSchema>({
+type ContactFormData = CreateContactInput;
+
+interface ContactChannelFieldProps {
+  index: number;
+  onRemove: () => void;
+  canRemove: boolean;
+  getPlaceholderText: (type: CommunicationChannel) => string;
+}
+
+function ContactChannelField({ 
+  index, 
+  onRemove, 
+  canRemove, 
+  getPlaceholderText 
+}: ContactChannelFieldProps) {
+  return (
+    <div className="flex gap-2 items-start">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
+        <FormField
+          name={`contactChannels.${index}.type`}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <CommunicationChannelSelect
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Select type"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          name={`contactChannels.${index}.value`}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder={getPlaceholderText(
+                    field.value as CommunicationChannel,
+                  )}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      {canRemove && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={onRemove}
+          className="mt-1"
+          aria-label="Remove contact channel"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function ContactForm() {
+  const form = useForm<ContactFormData>({
     resolver: zodResolver(createContactSchema),
     defaultValues: {
       name: "",
@@ -41,18 +108,19 @@ function SingleContactForm() {
   });
 
   const [createContact, { loading }] = useMutation<
-    Contact,
+    { contact: Contact },
     { input: CreateContactInput }
   >(CREATE_CONTACT);
-  const onSubmit = (data: CreateContactSchema) => {
+
+  const handleSubmit = (data: ContactFormData) => {
     createContact({
       variables: { input: data },
       onCompleted: () => {
-        toast.success("Campaign created successfull");
+        toast.success("Contact created successfully");
         form.reset();
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to create a campaign");
+        toast.error(error.message || "Failed to create contact");
       },
     });
   };
@@ -66,15 +134,19 @@ function SingleContactForm() {
       case CommunicationChannel.Email:
         return "Enter email address";
       case CommunicationChannel.Sms:
-        return "Enter SMS number";
+        return "Enter phone number";
       default:
         return "Enter value";
     }
   };
 
+  const resetForm = () => {
+    form.reset();
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-6">
         <FormField
           control={form.control}
           name="name"
@@ -97,68 +169,26 @@ function SingleContactForm() {
               variant="outline"
               size="sm"
               onClick={addContactChannel}
+              className="gap-2"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4" />
               Add Channel
             </Button>
           </div>
 
           {fields.map((field, index) => (
-            <div key={field.id} className="flex gap-2 items-start">
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
-                <FormField
-                  control={form.control}
-                  name={`contactChannels.${index}.type`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <CommunicationChannelSelect
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          placeholder="Select type"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`contactChannels.${index}.value`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder={getPlaceholderText(
-                            form.watch(`contactChannels.${index}.type`),
-                          )}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {fields.length > 1 && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => remove(index)}
-                  className="mt-1"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+            <ContactChannelField
+              key={field.id}
+              index={index}
+              onRemove={() => remove(index)}
+              canRemove={fields.length > 1}
+              getPlaceholderText={getPlaceholderText}
+            />
           ))}
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
+          <Button type="button" variant="outline" onClick={resetForm}>
             Reset
           </Button>
 
@@ -171,4 +201,4 @@ function SingleContactForm() {
   );
 }
 
-export { SingleContactForm };
+export { ContactForm };

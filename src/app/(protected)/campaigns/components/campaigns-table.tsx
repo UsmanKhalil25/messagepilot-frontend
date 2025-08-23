@@ -1,9 +1,9 @@
 "use client";
 
 import { Megaphone } from "lucide-react";
-
 import { motion } from "motion/react";
 import { useQuery } from "@apollo/client";
+
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { CampaignsTableRow } from "./camapigns-table-row";
+import { CampaignsTableRow } from "./campaigns-table-row";
 import { CampaignsTableRowSkeleton } from "./campaigns-table-skeleton";
 import { CampaignsPagination } from "./campaigns-pagination";
 import { CAMPAIGNS } from "@/graphql/queries/campaigns";
@@ -27,22 +27,37 @@ import { useSearchFilters } from "../hooks/use-search-filter";
 
 const SKELETON_ROWS = 5;
 
-function EmptyState() {
+interface EmptyStateProps {
+  title?: string;
+  description?: string;
+}
+
+function EmptyState({ 
+  title = "No campaigns yet", 
+  description = "Get started by creating your first campaign to reach your audience and track performance."
+}: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="w-16 h-16 mb-6 rounded-full bg-muted flex items-center justify-center">
         <Megaphone className="w-8 h-8 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-semibold mb-2">No campaigns yet</h3>
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
       <p className="text-muted-foreground text-center mb-6 max-w-sm">
-        Get started by creating your first campaign to reach your audience and
-        track performance.
+        {description}
       </p>
     </div>
   );
 }
 
-function ErrorState() {
+interface ErrorStateProps {
+  title?: string;
+  description?: string;
+}
+
+function ErrorState({ 
+  title = "Failed to load campaigns", 
+  description = "We're having trouble connecting to our servers. Please check your connection and try again."
+}: ErrorStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="w-16 h-16 mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
@@ -60,12 +75,69 @@ function ErrorState() {
           />
         </svg>
       </div>
-      <h3 className="text-lg font-semibold mb-2">Failed to load campaigns</h3>
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
       <p className="text-muted-foreground text-center mb-6 max-w-sm">
-        We&apos;re having trouble connecting to our servers. Please check your
-        connection and try again.
+        {description}
       </p>
     </div>
+  );
+}
+
+interface CampaignsTableContentProps {
+  campaigns: any[];
+  loading: boolean;
+  totalPages: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+function CampaignsTableContent({ 
+  campaigns, 
+  loading, 
+  totalPages, 
+  currentPage, 
+  hasNextPage, 
+  hasPreviousPage 
+}: CampaignsTableContentProps) {
+  return (
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Campaign</TableHead>
+            <TableHead>Channel</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Created</TableHead>
+            <TableHead>Last Updated</TableHead>
+            <TableHead className="w-[70px]"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loading && campaigns.length === 0
+            ? Array.from({ length: SKELETON_ROWS }, (_, index) => (
+                <CampaignsTableRowSkeleton key={`skeleton-${index}`} />
+              ))
+            : campaigns.map((campaign, index) => (
+                <CampaignsTableRow
+                  key={`campaign-${index}`}
+                  campaign={campaign}
+                />
+              ))}
+        </TableBody>
+      </Table>
+      
+      {!loading && totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <CampaignsPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            hasNextPage={hasNextPage}
+            hasPreviousPage={hasPreviousPage}
+          />
+        </div>
+      )}
+    </>
   );
 }
 
@@ -83,7 +155,10 @@ function CampaignsTable() {
   const hasNextPage = data?.campaigns?.pagination.hasNextPage ?? false;
   const hasPreviousPage = data?.campaigns?.pagination.hasPreviousPage ?? false;
 
-  if (error && !loading && campaigns.length === 0) {
+  const showError = error && !loading && campaigns.length === 0;
+  const showEmpty = !loading && campaigns.length === 0 && !error;
+
+  if (showError) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -122,45 +197,17 @@ function CampaignsTable() {
           <CardDescription>Browse and manage your campaigns</CardDescription>
         </CardHeader>
         <CardContent>
-          {!loading && campaigns.length === 0 && !error ? (
+          {showEmpty ? (
             <EmptyState />
           ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Campaign</TableHead>
-                    <TableHead>Channel</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Last Updated</TableHead>
-                    <TableHead className="w-[70px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading && campaigns.length === 0
-                    ? Array.from({ length: SKELETON_ROWS }, (_, index) => (
-                        <CampaignsTableRowSkeleton key={`skeleton-${index}`} />
-                      ))
-                    : campaigns.map((campaign, index) => (
-                        <CampaignsTableRow
-                          key={`campaign-${index}`}
-                          campaign={campaign}
-                        />
-                      ))}
-                </TableBody>
-              </Table>
-              {!loading && totalPages > 1 && (
-                <div className="mt-6 flex justify-center">
-                  <CampaignsPagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    hasNextPage={hasNextPage}
-                    hasPreviousPage={hasPreviousPage}
-                  />
-                </div>
-              )}
-            </>
+            <CampaignsTableContent
+              campaigns={campaigns}
+              loading={loading}
+              totalPages={totalPages}
+              currentPage={currentPage}
+              hasNextPage={hasNextPage}
+              hasPreviousPage={hasPreviousPage}
+            />
           )}
         </CardContent>
       </Card>

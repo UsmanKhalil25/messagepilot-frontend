@@ -1,9 +1,7 @@
-// src/context/UserContext.tsx
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery } from "@apollo/client";
-import { useRouter } from "next/navigation";
 
 import { CURRENT_USER } from "@/graphql/queries/current-user";
 type User = {
@@ -20,13 +18,7 @@ type UserContextType = {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const router = useRouter();
-  const { data, loading, error } = useQuery(CURRENT_USER);
-  if (
-    error?.graphQLErrors.some((e) => e.extensions?.code === "UNAUTHENTICATED")
-  ) {
-    router.push("/login");
-  }
+  const { data, loading } = useQuery(CURRENT_USER);
 
   return (
     <UserContext.Provider value={{ user: data?.currentUser ?? null, loading }}>

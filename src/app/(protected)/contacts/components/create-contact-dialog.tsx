@@ -15,14 +15,18 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { SingleContactForm } from "./single-contact-form";
-import { BulkImportContactForm } from "./bulk-import-contact-form";
+import { ContactForm } from "./single-contact-form";
+import { BulkCreateContactForm } from "./bulk-create-contact-form";
 
 function CreateContactDialog() {
   const [open, setOpen] = useState(false);
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
@@ -43,14 +47,15 @@ function CreateContactDialog() {
             <TabsTrigger value="bulk">Bulk Import</TabsTrigger>
           </TabsList>
           <TabsContent value="single">
-            <SingleContactForm />
+            <ContactForm />
           </TabsContent>
           <TabsContent value="bulk">
-            <BulkImportContactForm />
+            <BulkCreateContactForm />
           </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>
   );
 }
+
 export { CreateContactDialog };
