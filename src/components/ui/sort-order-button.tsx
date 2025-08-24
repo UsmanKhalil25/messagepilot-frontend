@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 
-type SortOrder = "asc" | "desc";
+export type SortOrder = "asc" | "desc";
 
 interface SortOrderButtonProps {
   paramKey: string;
@@ -39,7 +39,7 @@ function SortOrderButton({
       disabled={disabled}
       className={cn(
         "h-10 px-4 rounded-none border-0 bg-transparent hover:bg-background/80",
-        className,
+        className
       )}
       onClick={handleToggle}
       aria-label={`Sort order: ${currentLabel}`}
@@ -55,4 +55,3 @@ function SortOrderButton({
 }
 
 export { SortOrderButton };
-export type { SortOrder };
