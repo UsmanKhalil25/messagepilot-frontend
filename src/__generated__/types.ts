@@ -351,7 +351,16 @@ export type GetCampaignsQueryVariables = Exact<{
 }>;
 
 
-export type GetCampaignsQuery = { __typename?: 'Query', campaigns: { __typename?: 'CampaignsResponse', campaigns: Array<{ __typename?: 'Campaign', id: string, title: string, description: string, status: CampaignStatus, channelType: CommunicationChannel, createdAt: any, updatedAt: any, contacts: Array<{ __typename?: 'Contact', id: string, name: string }> }>, pagination: { __typename?: 'PaginationInfo', total: number, page: number, totalPages: number, limit: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
+export type GetCampaignsQuery = { __typename?: 'Query', campaigns: { __typename?: 'CampaignsResponse', campaigns: Array<{ __typename?: 'Campaign', id: string, title: string, status: CampaignStatus, channelType: CommunicationChannel, createdAt: any, updatedAt: any }>, pagination: { __typename?: 'PaginationInfo', total: number, page: number, totalPages: number, limit: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
+
+export type GetContactsQueryVariables = Exact<{
+  filters?: InputMaybe<ContactFilterInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetContactsQuery = { __typename?: 'Query', contacts: { __typename?: 'ContactsResponse', contacts: Array<{ __typename?: 'Contact', id: string, name: string, createdAt: any, updatedAt: any, contactChannels: Array<{ __typename?: 'ContactChannel', id: string, type: CommunicationChannel, value: string, createdAt: any, updatedAt: any }> }>, pagination: { __typename?: 'PaginationInfo', total: number, page: number, totalPages: number, limit: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 

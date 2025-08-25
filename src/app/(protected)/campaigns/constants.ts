@@ -1,8 +1,6 @@
-import {
-  CampaignSortBy,
-  CampaignStatus,
-  SortOrder,
-} from "@/__generated__/types";
+import { CampaignSortBy, CampaignStatus } from "@/__generated__/types";
+
+import { SORT_ORDER_MAP } from "@/common/constants/sort-order.constant";
 
 export const CAMPAIGN_STATUS_MAP: Record<string, CampaignStatus> = {
   active: CampaignStatus.Active,
@@ -19,15 +17,15 @@ export const CAMPAIGN_SORT_BY_MAP: Record<string, CampaignSortBy> = {
   status: CampaignSortBy.Status,
 } as const;
 
-export const CAMPAIGN_SORT_ORDER_MAP: Record<string, SortOrder> = {
-  asc: SortOrder.Asc,
-  desc: SortOrder.Desc,
-} as const;
+export const CAMPAIGN_SEARCH_PARAMS = [
+  { key: "status", map: CAMPAIGN_STATUS_MAP, skipValue: "all" },
+  { key: "sortBy", map: CAMPAIGN_SORT_BY_MAP },
+  { key: "sortOrder", map: SORT_ORDER_MAP },
+];
 
 export const VALID_CAMPAIGN_STATUSES = Object.keys(CAMPAIGN_STATUS_MAP);
 export const VALID_CAMPAIGN_SORT_BY = Object.keys(CAMPAIGN_SORT_BY_MAP);
-export const VALID_CAMPAIGN_SORT_ORDER = Object.keys(CAMPAIGN_SORT_ORDER_MAP);
 
 export const DEFAULT_CAMPAIGN_STATUS = "all";
 export const DEFAULT_CAMPAIGN_SORT_BY = "created_at";
-export const DEFAULT_CAMPAIGN_SORT_ORDER = "desc";
+export const DEFAULT_CAMPAIGN_PAGE_SIZE = 10;

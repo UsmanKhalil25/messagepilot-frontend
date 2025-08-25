@@ -14,7 +14,7 @@ export default function CampaignsPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.4 }}
         className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
       >
         <div>
@@ -26,11 +26,17 @@ export default function CampaignsPage() {
         <CreateCampaignDialog />
       </motion.div>
 
-      <CampaignStats />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        <CampaignStats />
+      </motion.div>
 
       <motion.div
         className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
@@ -42,7 +48,14 @@ export default function CampaignsPage() {
           <CampaignsFilters />
         </div>
       </motion.div>
-      <CampaignsTable />
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+      >
+        <CampaignsTable />
+      </motion.div>
     </main>
   );
 }

@@ -59,12 +59,7 @@ function CampaignStats() {
   }
 
   return (
-    <motion.div
-      className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
-    >
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="Total Campaigns"
         value={stats.total}
@@ -95,7 +90,7 @@ function CampaignStats() {
         color="text-orange-600"
         loading={loading}
       />
-    </motion.div>
+    </div>
   );
 }
 

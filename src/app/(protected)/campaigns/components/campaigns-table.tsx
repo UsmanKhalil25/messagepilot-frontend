@@ -1,7 +1,6 @@
 "use client";
 
-import { Megaphone } from "lucide-react";
-import { motion } from "motion/react";
+import { AlertTriangle, Megaphone } from "lucide-react";
 import { useQuery } from "@apollo/client";
 
 import {
@@ -11,30 +10,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { DataTableContainer } from "@/components/ui/data-table-container";
+
+import { useSearchFilters } from "@/hooks/use-search-filters";
 
 import { CampaignsTableRow } from "./campaigns-table-row";
 import { CampaignsTableRowSkeleton } from "./campaigns-table-skeleton";
-import { CampaignsPagination } from "./campaigns-pagination";
-import { CAMPAIGNS } from "@/graphql/queries/campaigns";
-import { useSearchFilters } from "../hooks/use-search-filter";
 
-const SKELETON_ROWS = 5;
+import { GetCampaignsQuery } from "@/__generated__/graphql";
+import { CampaignsPagination } from "./campaigns-pagination";
+
+import {
+  CAMPAIGN_SEARCH_PARAMS,
+  DEFAULT_CAMPAIGN_PAGE_SIZE,
+} from "../constants";
+import { CAMPAIGNS } from "@/graphql/queries/campaigns";
+
+type Campaign = GetCampaignsQuery["campaigns"]["campaigns"][number];
 
 interface EmptyStateProps {
   title?: string;
   description?: string;
 }
 
-function EmptyState({ 
-  title = "No campaigns yet", 
-  description = "Get started by creating your first campaign to reach your audience and track performance."
+function EmptyState({
+  title = "No campaigns yet",
+  description = "Get started by creating your first campaign to reach your audience and track performance.",
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -54,26 +55,14 @@ interface ErrorStateProps {
   description?: string;
 }
 
-function ErrorState({ 
-  title = "Failed to load campaigns", 
-  description = "We're having trouble connecting to our servers. Please check your connection and try again."
+function ErrorState({
+  title = "Failed to load campaigns",
+  description = "We're having trouble connecting to our servers. Please check your connection and try again.",
 }: ErrorStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="w-16 h-16 mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
-        <svg
-          className="w-8 h-8 text-destructive"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-          />
-        </svg>
+        <AlertTriangle className="w-8 h-8 text-destructive" />
       </div>
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
       <p className="text-muted-foreground text-center mb-6 max-w-sm">
@@ -84,7 +73,7 @@ function ErrorState({
 }
 
 interface CampaignsTableContentProps {
-  campaigns: any[];
+  campaigns: Campaign[];
   loading: boolean;
   totalPages: number;
   currentPage: number;
@@ -92,43 +81,51 @@ interface CampaignsTableContentProps {
   hasPreviousPage: boolean;
 }
 
-function CampaignsTableContent({ 
-  campaigns, 
-  loading, 
-  totalPages, 
-  currentPage, 
-  hasNextPage, 
-  hasPreviousPage 
+function CampaignsTableContent({
+  campaigns,
+  loading,
+  totalPages,
+  currentPage,
+  hasNextPage,
+  hasPreviousPage,
 }: CampaignsTableContentProps) {
   return (
     <>
       <Table>
-        <TableHeader>
+        <TableHeader className="border-b border-border/50">
           <TableRow>
-            <TableHead>Campaign</TableHead>
-            <TableHead>Channel</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead>Last Updated</TableHead>
-            <TableHead className="w-[70px]"></TableHead>
+            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
+              Campaign Name
+            </TableHead>
+            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
+              Type
+            </TableHead>
+            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
+              Status
+            </TableHead>
+            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
+              Last Updated
+            </TableHead>
+            <TableHead className="w-[70px] py-4 px-6"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {loading && campaigns.length === 0
-            ? Array.from({ length: SKELETON_ROWS }, (_, index) => (
+            ? Array.from({ length: DEFAULT_CAMPAIGN_PAGE_SIZE }, (_, index) => (
                 <CampaignsTableRowSkeleton key={`skeleton-${index}`} />
               ))
             : campaigns.map((campaign, index) => (
                 <CampaignsTableRow
-                  key={`campaign-${index}`}
+                  key={campaign.id}
                   campaign={campaign}
+                  index={index}
                 />
               ))}
         </TableBody>
       </Table>
-      
+
       {!loading && totalPages > 1 && (
-        <div className="mt-6 flex justify-center">
+        <div className="mt-8 flex justify-center">
           <CampaignsPagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -142,7 +139,10 @@ function CampaignsTableContent({
 }
 
 function CampaignsTable() {
-  const variables = useSearchFilters();
+  const variables = useSearchFilters({
+    pageSize: DEFAULT_CAMPAIGN_PAGE_SIZE,
+    params: CAMPAIGN_SEARCH_PARAMS,
+  });
 
   const { data, loading, error } = useQuery(CAMPAIGNS, {
     variables,
@@ -155,63 +155,54 @@ function CampaignsTable() {
   const hasNextPage = data?.campaigns?.pagination.hasNextPage ?? false;
   const hasPreviousPage = data?.campaigns?.pagination.hasPreviousPage ?? false;
 
-  const showError = error && !loading && campaigns.length === 0;
-  const showEmpty = !loading && campaigns.length === 0 && !error;
+  const showError = !loading && error && campaigns.length === 0;
+  const showEmpty = !loading && !error && campaigns.length === 0;
 
   if (showError) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
+      <DataTableContainer
+        title="All Campaigns"
+        description="Browse and manage your campaigns"
       >
-        <Card className="rounded-2xl shadow-sm">
-          <CardHeader>
-            <CardTitle>All Campaigns</CardTitle>
-            <CardDescription>Browse and manage your campaigns</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ErrorState />
-          </CardContent>
-        </Card>
-      </motion.div>
+        <ErrorState />
+      </DataTableContainer>
+    );
+  }
+
+  if (showEmpty) {
+    return (
+      <DataTableContainer
+        title="All Campaigns"
+        description="Browse and manage your campaigns"
+      >
+        <EmptyState />
+      </DataTableContainer>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-    >
-      <Card className="rounded-2xl shadow-sm">
-        <CardHeader>
-          <CardTitle>
-            All Campaigns
-            {!loading && totalCount > 0 && (
-              <span className="text-sm font-normal text-muted-foreground ml-2">
-                ({totalCount} total)
-              </span>
-            )}
-          </CardTitle>
-          <CardDescription>Browse and manage your campaigns</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {showEmpty ? (
-            <EmptyState />
-          ) : (
-            <CampaignsTableContent
-              campaigns={campaigns}
-              loading={loading}
-              totalPages={totalPages}
-              currentPage={currentPage}
-              hasNextPage={hasNextPage}
-              hasPreviousPage={hasPreviousPage}
-            />
+    <DataTableContainer
+      title={
+        <>
+          All Campaigns
+          {!loading && campaigns.length > 0 && (
+            <span className="text-sm font-normal text-muted-foreground ml-2">
+              ({totalCount} total)
+            </span>
           )}
-        </CardContent>
-      </Card>
-    </motion.div>
+        </>
+      }
+      description="Browse and manage your campaigns"
+    >
+      <CampaignsTableContent
+        campaigns={campaigns}
+        loading={loading}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        hasNextPage={hasNextPage}
+        hasPreviousPage={hasPreviousPage}
+      />
+    </DataTableContainer>
   );
 }
 

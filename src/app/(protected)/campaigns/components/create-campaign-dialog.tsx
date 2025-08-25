@@ -45,7 +45,6 @@ import { CAMPAIGN_STATS } from "@/graphql/queries/campaign-stats";
 import type { Campaign, CreateCampaignInput } from "@/__generated__/graphql";
 import { CommunicationChannel, CampaignStatus } from "@/__generated__/graphql";
 import { createCampaignSchema } from "../schemas/create-campaign.schema";
-import { useSearchFilters } from "../hooks/use-search-filter";
 
 const CREATABLE_CAMPAIGN_STATUSES: CampaignStatus[] = [
   CampaignStatus.Queued,
@@ -114,7 +113,7 @@ function CampaignForm({ onSuccess }: CampaignFormProps) {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="description"
@@ -122,10 +121,7 @@ function CampaignForm({ onSuccess }: CampaignFormProps) {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="Enter campaign description"
-                />
+                <Textarea {...field} placeholder="Enter campaign description" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -150,7 +146,7 @@ function CampaignForm({ onSuccess }: CampaignFormProps) {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="status"
@@ -186,20 +182,12 @@ function CampaignForm({ onSuccess }: CampaignFormProps) {
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={resetForm}
-          >
+          <Button type="button" variant="outline" onClick={resetForm}>
             Reset
           </Button>
 
           <Button type="submit" disabled={loading}>
-            {loading ? (
-              <LoadingText text="Creating..." />
-            ) : (
-              "Create Campaign"
-            )}
+            {loading ? <LoadingText text="Creating..." /> : "Create Campaign"}
           </Button>
         </div>
       </form>
