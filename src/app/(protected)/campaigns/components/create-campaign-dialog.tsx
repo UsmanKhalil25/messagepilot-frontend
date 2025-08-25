@@ -39,6 +39,13 @@ import { CommunicationChannelSelect } from "@/components/ui/communication-channe
 import { capitalize } from "@/common/utils/string.utils";
 import { CAMPAIGN_STATUS_COLORS } from "@/common/constants/campaign-status-colors";
 
+import { useSearchFilters } from "@/hooks/use-search-filters";
+
+import {
+  CAMPAIGN_SEARCH_PARAMS,
+  DEFAULT_CAMPAIGN_PAGE_SIZE,
+} from "../constants";
+
 import { CAMPAIGNS } from "@/graphql/queries/campaigns";
 import { CREATE_CAMPAIGN } from "@/graphql/mutations/create-campaign";
 import { CAMPAIGN_STATS } from "@/graphql/queries/campaign-stats";
@@ -58,7 +65,10 @@ interface CampaignFormProps {
 }
 
 function CampaignForm({ onSuccess }: CampaignFormProps) {
-  const searchFilters = useSearchFilters();
+  const searchFilters = useSearchFilters({
+    pageSize: DEFAULT_CAMPAIGN_PAGE_SIZE,
+    params: CAMPAIGN_SEARCH_PARAMS,
+  });
 
   const form = useForm<CampaignFormData>({
     resolver: zodResolver(createCampaignSchema),

@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DataTableContainer } from "@/components/ui/data-table-container";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 
 import { useSearchFilters } from "@/hooks/use-search-filters";
 
@@ -18,7 +19,6 @@ import { CampaignsTableRow } from "./campaigns-table-row";
 import { CampaignsTableRowSkeleton } from "./campaigns-table-skeleton";
 
 import { GetCampaignsQuery } from "@/__generated__/graphql";
-import { CampaignsPagination } from "./campaigns-pagination";
 
 import {
   CAMPAIGN_SEARCH_PARAMS,
@@ -72,6 +72,12 @@ function ErrorState({
   );
 }
 
+function LoadingState() {
+  return Array.from({ length: DEFAULT_CAMPAIGN_PAGE_SIZE }, (_, index) => (
+    <CampaignsTableRowSkeleton key={`skeleton-${index}`} />
+  ));
+}
+
 interface CampaignsTableContentProps {
   campaigns: Campaign[];
   loading: boolean;
@@ -110,23 +116,23 @@ function CampaignsTableContent({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {loading && campaigns.length === 0
-            ? Array.from({ length: DEFAULT_CAMPAIGN_PAGE_SIZE }, (_, index) => (
-                <CampaignsTableRowSkeleton key={`skeleton-${index}`} />
-              ))
-            : campaigns.map((campaign, index) => (
-                <CampaignsTableRow
-                  key={campaign.id}
-                  campaign={campaign}
-                  index={index}
-                />
-              ))}
+          {loading && campaigns.length === 0 ? (
+            <LoadingState />
+          ) : (
+            campaigns.map((campaign, index) => (
+              <CampaignsTableRow
+                key={campaign.id}
+                campaign={campaign}
+                index={index}
+              />
+            ))
+          )}
         </TableBody>
       </Table>
 
       {!loading && totalPages > 1 && (
         <div className="mt-8 flex justify-center">
-          <CampaignsPagination
+          <DataTablePagination
             currentPage={currentPage}
             totalPages={totalPages}
             hasNextPage={hasNextPage}

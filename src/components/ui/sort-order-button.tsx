@@ -39,7 +39,7 @@ function SortOrderButton({
       disabled={disabled}
       className={cn(
         "h-10 px-4 rounded-none border-0 bg-transparent hover:bg-background/80",
-        className
+        className,
       )}
       onClick={handleToggle}
       aria-label={`Sort order: ${currentLabel}`}

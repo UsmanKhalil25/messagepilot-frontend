@@ -1,7 +1,7 @@
-import { 
-  CAMPAIGN_STATUS_MAP, 
-  CAMPAIGN_SORT_BY_MAP, 
-  CAMPAIGN_SORT_ORDER_MAP 
+import {
+  CAMPAIGN_STATUS_MAP,
+  CAMPAIGN_SORT_BY_MAP,
+  CAMPAIGN_SORT_ORDER_MAP,
 } from "./constants";
 
 export function isValidCampaignStatus(status: string): boolean {
@@ -24,6 +24,8 @@ export function getCampaignSortByValue(sortBy: string): string | undefined {
   return CAMPAIGN_SORT_BY_MAP[sortBy.toLowerCase()];
 }
 
-export function getCampaignSortOrderValue(sortOrder: string): string | undefined {
+export function getCampaignSortOrderValue(
+  sortOrder: string,
+): string | undefined {
   return CAMPAIGN_SORT_ORDER_MAP[sortOrder.toLowerCase()];
 }

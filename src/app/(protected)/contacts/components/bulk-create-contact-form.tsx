@@ -31,6 +31,7 @@ import { CsvParsedRow } from "../types/csv-parsed-row.type";
 import { bulkCreateContactSchema } from "../schemas/bulk-create-contact.schema";
 import { transformToContactSchema } from "../utils/transform-to-contact-schema";
 import { BULK_CREATE_CONTACT } from "@/graphql/mutations/bulk-create-contact";
+import { CONTACTS } from "@/graphql/queries/contacts";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -184,6 +185,7 @@ function BulkCreateContactForm() {
   const handleImport = (contacts: CreateContactInput[]) => {
     bulkCreateContact({
       variables: { input: { contacts } },
+      refetchQueries: () => [{ query: CONTACTS }],
       onCompleted: (data) => {
         const response = data.bulkCreateContact;
 

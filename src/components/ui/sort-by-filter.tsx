@@ -47,7 +47,7 @@ function SortByFilter({
           disabled={disabled}
           className={cn(
             "h-10 px-4 rounded-none border-0 bg-transparent hover:bg-background/80",
-            className
+            className,
           )}
           aria-label={`Sort by ${currentOption.label}`}
         >
@@ -78,7 +78,7 @@ function SortByFilter({
                 variant="ghost"
                 className={cn(
                   "w-full justify-start h-9 px-2",
-                  isSelected && "bg-accent text-accent-foreground"
+                  isSelected && "bg-accent text-accent-foreground",
                 )}
                 onClick={() => onChange(paramKey, value)}
                 aria-selected={isSelected}

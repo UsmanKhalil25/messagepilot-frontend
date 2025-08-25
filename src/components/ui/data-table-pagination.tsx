@@ -11,19 +11,19 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-interface CampaignsPaginationProps {
+interface DataTablePaginationProps {
   currentPage: number;
   totalPages: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
 }
 
-function CampaignsPagination({
+function DataTablePagination({
   currentPage,
   totalPages,
   hasNextPage,
   hasPreviousPage,
-}: CampaignsPaginationProps) {
+}: DataTablePaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -125,4 +125,4 @@ function CampaignsPagination({
   );
 }
 
-export { CampaignsPagination };
+export { DataTablePagination };

@@ -24,6 +24,7 @@ import {
 } from "@/__generated__/graphql";
 import { createContactSchema } from "../schemas/create-contact.schema";
 import { CREATE_CONTACT } from "@/graphql/mutations/create-contact";
+import { CONTACTS } from "@/graphql/queries/contacts";
 
 type ContactFormData = CreateContactInput;
 
@@ -34,11 +35,11 @@ interface ContactChannelFieldProps {
   getPlaceholderText: (type: CommunicationChannel) => string;
 }
 
-function ContactChannelField({ 
-  index, 
-  onRemove, 
-  canRemove, 
-  getPlaceholderText 
+function ContactChannelField({
+  index,
+  onRemove,
+  canRemove,
+  getPlaceholderText,
 }: ContactChannelFieldProps) {
   return (
     <div className="flex gap-2 items-start">
@@ -115,6 +116,7 @@ function ContactForm() {
   const handleSubmit = (data: ContactFormData) => {
     createContact({
       variables: { input: data },
+      refetchQueries: () => [{ query: CONTACTS }],
       onCompleted: () => {
         toast.success("Contact created successfully");
         form.reset();
