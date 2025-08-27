@@ -3,30 +3,18 @@
 import { AlertTriangle, Megaphone } from "lucide-react";
 import { useQuery } from "@apollo/client";
 
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { DataTableContainer } from "@/components/ui/data-table-container";
-import { DataTablePagination } from "@/components/ui/data-table-pagination";
+import { DataTable } from "@/components/ui/data-table";
 
 import { useSearchFilters } from "@/hooks/use-search-filters";
 
 import { CampaignsTableRow } from "./campaigns-table-row";
 import { CampaignsTableRowSkeleton } from "./campaigns-table-skeleton";
 
-import { GetCampaignsQuery } from "@/__generated__/graphql";
-
 import {
   CAMPAIGN_SEARCH_PARAMS,
   DEFAULT_CAMPAIGN_PAGE_SIZE,
 } from "../constants";
 import { CAMPAIGNS } from "@/graphql/queries/campaigns";
-
-type Campaign = GetCampaignsQuery["campaigns"]["campaigns"][number];
 
 interface EmptyStateProps {
   title?: string;
@@ -72,144 +60,52 @@ function ErrorState({
   );
 }
 
-function LoadingState() {
-  return Array.from({ length: DEFAULT_CAMPAIGN_PAGE_SIZE }, (_, index) => (
-    <CampaignsTableRowSkeleton key={`skeleton-${index}`} />
-  ));
-}
-
-interface CampaignsTableContentProps {
-  campaigns: Campaign[];
-  loading: boolean;
-  totalPages: number;
-  currentPage: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
-function CampaignsTableContent({
-  campaigns,
-  loading,
-  totalPages,
-  currentPage,
-  hasNextPage,
-  hasPreviousPage,
-}: CampaignsTableContentProps) {
-  return (
-    <>
-      <Table>
-        <TableHeader className="border-b border-border/50">
-          <TableRow>
-            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
-              Campaign Name
-            </TableHead>
-            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
-              Type
-            </TableHead>
-            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
-              Status
-            </TableHead>
-            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
-              Last Updated
-            </TableHead>
-            <TableHead className="w-[70px] py-4 px-6"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {loading && campaigns.length === 0 ? (
-            <LoadingState />
-          ) : (
-            campaigns.map((campaign, index) => (
-              <CampaignsTableRow
-                key={campaign.id}
-                campaign={campaign}
-                index={index}
-              />
-            ))
-          )}
-        </TableBody>
-      </Table>
-
-      {!loading && totalPages > 1 && (
-        <div className="mt-8 flex justify-center">
-          <DataTablePagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            hasNextPage={hasNextPage}
-            hasPreviousPage={hasPreviousPage}
-          />
-        </div>
-      )}
-    </>
-  );
-}
-
-function CampaignsTable() {
-  const variables = useSearchFilters({
-    pageSize: DEFAULT_CAMPAIGN_PAGE_SIZE,
-    params: CAMPAIGN_SEARCH_PARAMS,
-  });
-
+export function CampaignsTable() {
   const { data, loading, error } = useQuery(CAMPAIGNS, {
-    variables,
+    variables: useSearchFilters({
+      pageSize: DEFAULT_CAMPAIGN_PAGE_SIZE,
+      params: CAMPAIGN_SEARCH_PARAMS,
+    }),
   });
 
   const campaigns = data?.campaigns?.campaigns || [];
-  const totalCount = data?.campaigns?.pagination.total ?? 0;
-  const currentPage = data?.campaigns?.pagination.page ?? 1;
-  const totalPages = data?.campaigns?.pagination.totalPages ?? 1;
-  const hasNextPage = data?.campaigns?.pagination.hasNextPage ?? false;
-  const hasPreviousPage = data?.campaigns?.pagination.hasPreviousPage ?? false;
-
-  const showError = !loading && error && campaigns.length === 0;
-  const showEmpty = !loading && !error && campaigns.length === 0;
-
-  if (showError) {
-    return (
-      <DataTableContainer
-        title="All Campaigns"
-        description="Browse and manage your campaigns"
-      >
-        <ErrorState />
-      </DataTableContainer>
-    );
-  }
-
-  if (showEmpty) {
-    return (
-      <DataTableContainer
-        title="All Campaigns"
-        description="Browse and manage your campaigns"
-      >
-        <EmptyState />
-      </DataTableContainer>
-    );
-  }
+  const pagination = data?.campaigns?.pagination;
 
   return (
-    <DataTableContainer
-      title={
-        <>
-          All Campaigns
-          {!loading && campaigns.length > 0 && (
-            <span className="text-sm font-normal text-muted-foreground ml-2">
-              ({totalCount} total)
-            </span>
-          )}
-        </>
-      }
+    <DataTable
+      title="All Campaigns"
       description="Browse and manage your campaigns"
-    >
-      <CampaignsTableContent
-        campaigns={campaigns}
-        loading={loading}
-        totalPages={totalPages}
-        currentPage={currentPage}
-        hasNextPage={hasNextPage}
-        hasPreviousPage={hasPreviousPage}
-      />
-    </DataTableContainer>
+      data={campaigns}
+      totalCount={pagination?.total ?? 0}
+      totalPages={pagination?.totalPages ?? 1}
+      currentPage={pagination?.page ?? 1}
+      hasNextPage={pagination?.hasNextPage ?? false}
+      hasPreviousPage={pagination?.hasPreviousPage ?? false}
+      loading={loading}
+      error={error}
+      columns={[
+        { key: "title", header: "Campaign Name" },
+        { key: "channelType", header: "Type" },
+        { key: "status", header: "Status" },
+        { key: "updatedAt", header: "Last Updated" },
+        { key: "actions", header: "", className: "w-[70px]" },
+      ]}
+      renderRow={(campaign, index) => (
+        <CampaignsTableRow
+          key={campaign.id}
+          campaign={campaign}
+          index={index}
+        />
+      )}
+      EmptyState={EmptyState}
+      ErrorState={ErrorState}
+      SkeletonRows={() => (
+        <>
+          {Array.from({ length: DEFAULT_CAMPAIGN_PAGE_SIZE }).map((_, idx) => (
+            <CampaignsTableRowSkeleton key={idx} />
+          ))}
+        </>
+      )}
+    />
   );
 }
-
-export { CampaignsTable };

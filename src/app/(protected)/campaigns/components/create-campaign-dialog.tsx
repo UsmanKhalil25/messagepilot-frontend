@@ -37,7 +37,7 @@ import { LoadingText } from "@/components/ui/loading-text";
 import { CommunicationChannelSelect } from "@/components/ui/communication-channel-select";
 
 import { capitalize } from "@/common/utils/string.utils";
-import { CAMPAIGN_STATUS_COLORS } from "@/common/constants/campaign-status-colors";
+import { CAMPAIGN_STATUS_COLORS } from "@/common/constants/campaign-status-colors.constant";
 
 import { useSearchFilters } from "@/hooks/use-search-filters";
 

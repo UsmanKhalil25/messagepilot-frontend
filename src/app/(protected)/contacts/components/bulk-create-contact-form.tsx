@@ -4,8 +4,12 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import Papa from "papaparse";
 import { useMutation } from "@apollo/client";
-import { FileRejection, useDropzone } from "react-dropzone";
-
+import {
+  FileRejection,
+  useDropzone,
+  DropzoneRootProps,
+  DropzoneInputProps,
+} from "react-dropzone";
 import { Upload, Download, FileText, X, CheckCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -67,14 +71,12 @@ function CsvTemplateDownloadButton() {
 }
 
 interface FileUploadZoneProps {
-  onDrop: (acceptedFiles: File[], rejectedFiles: FileRejection[]) => void;
   isDragActive: boolean;
-  getRootProps: () => any;
-  getInputProps: () => any;
+  getRootProps: () => DropzoneRootProps;
+  getInputProps: () => DropzoneInputProps;
 }
 
 function FileUploadZone({
-  onDrop,
   isDragActive,
   getRootProps,
   getInputProps,
@@ -337,7 +339,6 @@ function BulkCreateContactForm() {
         <CardContent className="space-y-6">
           {!uploadedFile ? (
             <FileUploadZone
-              onDrop={handleFileDrop}
               isDragActive={isDragActive}
               getRootProps={getRootProps}
               getInputProps={getInputProps}

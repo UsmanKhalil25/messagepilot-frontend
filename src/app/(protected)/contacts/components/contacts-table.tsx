@@ -2,24 +2,14 @@ import { useQuery } from "@apollo/client";
 
 import { AlertTriangle, Users } from "lucide-react";
 
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { DataTableContainer } from "@/components/ui/data-table-container";
-import { DataTablePagination } from "@/components/ui/data-table-pagination";
+import { DataTable } from "@/components/ui/data-table";
+
+import { ContactsTableRow } from "./conatcts-table-row";
+import { ContactsTableRowSkeleton } from "./contacts-table-row-skeleton";
 
 import { useSearchFilters } from "@/hooks/use-search-filters";
 import { CONTACTS } from "@/graphql/queries/contacts";
 import { CONTACT_SEARCH_PARAMS, DEFAULT_CONTACT_PAGE_SIZE } from "../constants";
-import type { GetContactsQuery } from "@/__generated__/graphql";
-import { ContactsTableRow } from "./conatcts-table-row";
-import { ContactsTableRowSkeleton } from "./contacts-table-row-skeleton";
-
-type Contact = GetContactsQuery["contacts"]["contacts"][number];
 
 interface EmptyStateProps {
   title?: string;
@@ -65,138 +55,47 @@ function ErrorState({
   );
 }
 
-function LoadingState() {
-  return Array.from({ length: DEFAULT_CONTACT_PAGE_SIZE }, (_, index) => (
-    <ContactsTableRowSkeleton key={`skeleton-${index}`} />
-  ));
-}
-interface ContactsTableContentProps {
-  contacts: Contact[];
-  loading: boolean;
-  totalPages: number;
-  currentPage: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
-function ContactsTableContent({
-  contacts,
-  loading,
-  totalPages,
-  currentPage,
-  hasNextPage,
-  hasPreviousPage,
-}: ContactsTableContentProps) {
-  return (
-    <>
-      <Table>
-        <TableHeader className="border-b border-border/50">
-          <TableRow>
-            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
-              Name
-            </TableHead>
-            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
-              Channels
-            </TableHead>
-            <TableHead className="font-semibold text-foreground/80 py-4 px-6">
-              Last Updated
-            </TableHead>
-            <TableHead className="w-[70px] py-4 px-6"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {loading && contacts.length === 0 ? (
-            <LoadingState />
-          ) : (
-            contacts.map((contact, index) => (
-              <ContactsTableRow
-                key={contact.id}
-                contact={contact}
-                index={index}
-              />
-            ))
-          )}
-        </TableBody>
-      </Table>
-
-      {!loading && totalPages > 1 && (
-        <div className="mt-8 flex justify-center">
-          <DataTablePagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            hasNextPage={hasNextPage}
-            hasPreviousPage={hasPreviousPage}
-          />
-        </div>
-      )}
-    </>
-  );
-}
-
 export function ContactsTable() {
-  const variables = useSearchFilters({
-    pageSize: DEFAULT_CONTACT_PAGE_SIZE,
-    params: CONTACT_SEARCH_PARAMS,
-  });
-
   const { data, loading, error } = useQuery(CONTACTS, {
-    variables,
+    variables: useSearchFilters({
+      pageSize: DEFAULT_CONTACT_PAGE_SIZE,
+      params: CONTACT_SEARCH_PARAMS,
+    }),
   });
 
   const contacts = data?.contacts?.contacts || [];
-  const totalCount = data?.contacts?.pagination.total ?? 0;
-  const currentPage = data?.contacts?.pagination.page ?? 1;
-  const totalPages = data?.contacts?.pagination.totalPages ?? 1;
-  const hasNextPage = data?.contacts?.pagination.hasNextPage ?? false;
-  const hasPreviousPage = data?.contacts?.pagination.hasPreviousPage ?? false;
-
-  const showError = !loading && error && contacts.length === 0;
-  const showEmpty = !loading && !error && contacts.length === 0;
-
-  if (showError) {
-    return (
-      <DataTableContainer
-        title="All Contacts"
-        description="Browse and manage your contacts"
-      >
-        <ErrorState />
-      </DataTableContainer>
-    );
-  }
-
-  if (showEmpty) {
-    return (
-      <DataTableContainer
-        title="All Contacts"
-        description="Browse and manage your contacts"
-      >
-        <EmptyState />
-      </DataTableContainer>
-    );
-  }
+  const pagination = data?.contacts?.pagination;
 
   return (
-    <DataTableContainer
-      title={
-        <>
-          All Contacts{" "}
-          {!loading && contacts.length > 0 && (
-            <span className="text-sm font-normal text-muted-foreground ml-2">
-              ({totalCount} total)
-            </span>
-          )}
-        </>
-      }
+    <DataTable
+      title="All Contacts"
       description="Browse and manage your contacts"
-    >
-      <ContactsTableContent
-        contacts={contacts}
-        loading={loading}
-        totalPages={totalPages}
-        currentPage={currentPage}
-        hasNextPage={hasNextPage}
-        hasPreviousPage={hasPreviousPage}
-      />
-    </DataTableContainer>
+      data={contacts}
+      totalCount={pagination?.total ?? 0}
+      totalPages={pagination?.totalPages ?? 1}
+      currentPage={pagination?.page ?? 1}
+      hasNextPage={pagination?.hasNextPage ?? false}
+      hasPreviousPage={pagination?.hasPreviousPage ?? false}
+      loading={loading}
+      error={error}
+      columns={[
+        { key: "name", header: "Name" },
+        { key: "channels", header: "Channels" },
+        { key: "updatedAt", header: "Last Updated" },
+        { key: "actions", header: "", className: "w-[70px]" },
+      ]}
+      renderRow={(contact, index) => (
+        <ContactsTableRow key={contact.id} contact={contact} index={index} />
+      )}
+      EmptyState={EmptyState}
+      ErrorState={ErrorState}
+      SkeletonRows={() => (
+        <>
+          {Array.from({ length: DEFAULT_CONTACT_PAGE_SIZE }).map((_, idx) => (
+            <ContactsTableRowSkeleton key={idx} />
+          ))}
+        </>
+      )}
+    />
   );
 }

@@ -1,14 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Calendar, Tag, Filter, Check, ChevronDown } from "lucide-react";
+import { Calendar, Tag } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 
 import { SortByFilter } from "@/components/ui/sort-by-filter";
@@ -24,7 +18,6 @@ function ContactsFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const status = searchParams.get("status") || "all";
   const sortBy = searchParams.get("sortBy") || "created_at";
   const sortOrder = (searchParams.get("sortOrder") as SortOrder) || "desc";
 

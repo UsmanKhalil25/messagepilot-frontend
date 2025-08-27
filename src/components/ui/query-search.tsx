@@ -2,8 +2,8 @@
 
 import { useDebouncedCallback } from "use-debounce";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
+
 import { Search, X } from "lucide-react";
-import { motion } from "framer-motion";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,10 @@ interface QuerySearchProps {
   paramName?: string;
 }
 
-function QuerySearch({ placeholder, paramName = "query" }: QuerySearchProps) {
+export function QuerySearch({
+  placeholder,
+  paramName = "query",
+}: QuerySearchProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -68,5 +71,3 @@ function QuerySearch({ placeholder, paramName = "query" }: QuerySearchProps) {
     </div>
   );
 }
-
-export { QuerySearch };

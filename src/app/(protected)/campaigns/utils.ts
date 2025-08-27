@@ -1,8 +1,6 @@
-import {
-  CAMPAIGN_STATUS_MAP,
-  CAMPAIGN_SORT_BY_MAP,
-  CAMPAIGN_SORT_ORDER_MAP,
-} from "./constants";
+import { CAMPAIGN_STATUS_MAP, CAMPAIGN_SORT_BY_MAP } from "./constants";
+
+import { SORT_ORDER_MAP } from "@/common/constants/sort-order.constant";
 
 export function isValidCampaignStatus(status: string): boolean {
   return status === "all" || status.toLowerCase() in CAMPAIGN_STATUS_MAP;
@@ -13,7 +11,7 @@ export function isValidCampaignSortBy(sortBy: string): boolean {
 }
 
 export function isValidCampaignSortOrder(sortOrder: string): boolean {
-  return sortOrder.toLowerCase() in CAMPAIGN_SORT_ORDER_MAP;
+  return sortOrder.toLowerCase() in SORT_ORDER_MAP;
 }
 
 export function getCampaignStatusValue(status: string): string | undefined {
@@ -27,5 +25,5 @@ export function getCampaignSortByValue(sortBy: string): string | undefined {
 export function getCampaignSortOrderValue(
   sortOrder: string,
 ): string | undefined {
-  return CAMPAIGN_SORT_ORDER_MAP[sortOrder.toLowerCase()];
+  return SORT_ORDER_MAP[sortOrder.toLowerCase()];
 }

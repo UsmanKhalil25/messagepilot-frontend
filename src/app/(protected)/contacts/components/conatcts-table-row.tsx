@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 
-import { COMMUNICATION_CHANNEL_ICONS } from "@/common/constants/communication-channel-icons";
+import { COMMUNICATION_CHANNEL_ICONS } from "@/common/constants/communication-channel-icons.constant";
 
 import {
   type GetContactsQuery,

@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 
-import { CAMPAIGN_STATUS_BADGE } from "@/common/constants/campain-status-badge";
-import { COMMUNICATION_CHANNEL_ICONS } from "@/common/constants/communication-channel-icons";
+import { CAMPAIGN_STATUS_BADGE } from "@/common/constants/campaign-status-badge.constant";
+import { COMMUNICATION_CHANNEL_ICONS } from "@/common/constants/communication-channel-icons.constant";
 
 import {
   GetCampaignsQuery,

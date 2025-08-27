@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { CampaignStatus } from "@/__generated__/graphql";
 
 export const CAMPAIGN_STATUS_BADGE: Record<

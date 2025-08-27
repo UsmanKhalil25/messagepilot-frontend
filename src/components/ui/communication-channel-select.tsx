@@ -1,4 +1,3 @@
-import { Mail, MessageSquare } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -8,7 +7,7 @@ import {
 } from "@/components/ui/select";
 
 import { capitalize } from "@/common/utils/string.utils";
-import { COMMUNICATION_CHANNEL_ICONS } from "@/common/constants/communication-channel-icons";
+import { COMMUNICATION_CHANNEL_ICONS } from "@/common/constants/communication-channel-icons.constant";
 
 import { CommunicationChannel } from "@/__generated__/graphql";
 

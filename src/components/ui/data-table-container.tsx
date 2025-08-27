@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "motion/react";
-
 import {
   Card,
   CardContent,
@@ -16,7 +14,7 @@ interface DataTableContainerProps {
   children: React.ReactNode;
 }
 
-function DataTableContainer({
+export function DataTableContainer({
   title,
   description,
   children,
@@ -31,5 +29,3 @@ function DataTableContainer({
     </Card>
   );
 }
-
-export { DataTableContainer };

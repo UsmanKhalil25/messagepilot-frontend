@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "motion/react";
 import { useQuery } from "@apollo/client";
 import { Target, Play, Calendar, Edit } from "lucide-react";
 
