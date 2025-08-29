@@ -1,0 +1,21 @@
+import { motion, MotionProps } from "motion/react";
+import { ReactNode } from "react";
+
+interface PageHeaderProps {
+  title: string;
+  description: string;
+  action?: ReactNode;
+  animateProps?: MotionProps;
+}
+
+export function PageHeader({ title, description, action }: PageHeaderProps) {
+  return (
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+        <p className="text-muted-foreground">{description}</p>
+      </div>
+      {action && <div className="flex-shrink-0">{action}</div>}
+    </div>
+  );
+}

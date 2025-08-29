@@ -2,6 +2,7 @@
 import { motion } from "motion/react";
 
 import { QuerySearch } from "@/components/ui/query-search";
+import { PageHeader } from "@/components/ui/page-header";
 
 import { CreateContactDialog } from "./components/create-contact-dialog";
 import { ContactsFilters } from "./components/contacts-filters";
@@ -10,20 +11,16 @@ import { ContactsTable } from "./components/contacts-table";
 export default function ContactsPage() {
   return (
     <main className="flex-1 space-y-6 p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-      >
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Contacts</h2>
-          <p className="text-muted-foreground">
-            View, organize, and manage all your contacts in one place
-          </p>
-        </div>
-        <CreateContactDialog />
-      </motion.div>
+      <PageHeader
+        title="Contacts"
+        description="View, organize, and manage all your contacts in one place"
+        action={<CreateContactDialog />}
+        animateProps={{
+          initial: { opacity: 0, y: 20 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.3 },
+        }}
+      />
 
       <motion.div
         className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"

@@ -1,7 +1,6 @@
-"use client";
-import { motion } from "motion/react";
-
 import { QuerySearch } from "@/components/ui/query-search";
+import { PageHeader } from "@/components/ui/page-header";
+import { Animated } from "@/components/ui/animated";
 
 import { CreateCampaignDialog } from "./components/create-campaign-dialog";
 import { CampaignStats } from "./components/campaign-stats";
@@ -11,34 +10,31 @@ import { CampaignsTable } from "./components/campaigns-table";
 export default function CampaignsPage() {
   return (
     <main className="flex-1 space-y-6 p-6">
-      <motion.div
+      <Animated
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        transition={{ duration: 0.2 }}
       >
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Campaigns</h2>
-          <p className="text-muted-foreground">
-            Manage and monitor all your marketing campaigns
-          </p>
-        </div>
-        <CreateCampaignDialog />
-      </motion.div>
+        <PageHeader
+          title="Campaigns"
+          description="Manage and monitor all your marketing campaigns"
+          action={<CreateCampaignDialog />}
+        />
+      </Animated>
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
+      <Animated
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
+        transition={{ duration: 0.2, delay: 0.1 }}
       >
         <CampaignStats />
-      </motion.div>
+      </Animated>
 
-      <motion.div
-        className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
-        initial={{ opacity: 0, y: 12 }}
+      <Animated
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
+        transition={{ duration: 0.2, delay: 0.2 }}
+        className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
       >
         <QuerySearch
           placeholder="Search campaigns by name..."
@@ -47,15 +43,15 @@ export default function CampaignsPage() {
         <div className="flex-shrink-0">
           <CampaignsFilters />
         </div>
-      </motion.div>
+      </Animated>
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
+      <Animated
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
+        transition={{ duration: 0.2, delay: 0.3 }}
       >
         <CampaignsTable />
-      </motion.div>
+      </Animated>
     </main>
   );
 }
