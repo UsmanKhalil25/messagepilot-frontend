@@ -12,7 +12,7 @@ interface ParamConfig {
 }
 
 interface UseMapFiltersOptions {
-  params?: ParamConfig[];
+  params?: readonly ParamConfig[];
   pageSize?: number;
   searchParams: URLSearchParams | Record<string, string>;
 }

@@ -5,21 +5,51 @@ import { useQuery } from "@apollo/client";
 
 import { DataTable } from "@/components/ui/data-table";
 
-import { useSearchFilters } from "@/hooks/use-search-filters";
+import { useMapFilters } from "@/hooks/use-map-filters";
 
 import { CampaignsTableRow } from "./campaigns-table-row";
-import { CampaignsTableRowSkeleton } from "./campaigns-table-skeleton";
+import { CampaignsTableRowSkeleton } from "./campaigns-table-row-skeleton";
 
 import {
   CAMPAIGN_SEARCH_PARAMS,
   DEFAULT_CAMPAIGN_PAGE_SIZE,
+  CAMPAIGN_COLUMN_WIDTHS,
 } from "../constants";
 import { CAMPAIGNS } from "@/graphql/queries/campaigns";
+
+interface CampaignsTableProps {
+  searchParams: Record<string, string>;
+}
 
 interface EmptyStateProps {
   title?: string;
   description?: string;
 }
+
+interface ErrorStateProps {
+  title?: string;
+  description?: string;
+}
+
+const TABLE_COLUMNS = [
+  {
+    key: "title",
+    header: "Campaign Name",
+    className: CAMPAIGN_COLUMN_WIDTHS.title,
+  },
+  {
+    key: "channelType",
+    header: "Type",
+    className: CAMPAIGN_COLUMN_WIDTHS.channelType,
+  },
+  { key: "status", header: "Status", className: CAMPAIGN_COLUMN_WIDTHS.status },
+  {
+    key: "updatedAt",
+    header: "Last Updated",
+    className: CAMPAIGN_COLUMN_WIDTHS.updatedAt,
+  },
+  { key: "actions", header: "", className: CAMPAIGN_COLUMN_WIDTHS.actions },
+];
 
 function EmptyState({
   title = "No campaigns yet",
@@ -36,11 +66,6 @@ function EmptyState({
       </p>
     </div>
   );
-}
-
-interface ErrorStateProps {
-  title?: string;
-  description?: string;
 }
 
 function ErrorState({
@@ -60,11 +85,12 @@ function ErrorState({
   );
 }
 
-export function CampaignsTable() {
+export function CampaignsTable({ searchParams }: CampaignsTableProps) {
   const { data, loading, error } = useQuery(CAMPAIGNS, {
-    variables: useSearchFilters({
+    variables: useMapFilters({
       pageSize: DEFAULT_CAMPAIGN_PAGE_SIZE,
       params: CAMPAIGN_SEARCH_PARAMS,
+      searchParams,
     }),
   });
 
@@ -76,26 +102,15 @@ export function CampaignsTable() {
       title="All Campaigns"
       description="Browse and manage your campaigns"
       data={campaigns}
-      totalCount={pagination?.total ?? 0}
       totalPages={pagination?.totalPages ?? 1}
       currentPage={pagination?.page ?? 1}
       hasNextPage={pagination?.hasNextPage ?? false}
       hasPreviousPage={pagination?.hasPreviousPage ?? false}
       loading={loading}
       error={error}
-      columns={[
-        { key: "title", header: "Campaign Name" },
-        { key: "channelType", header: "Type" },
-        { key: "status", header: "Status" },
-        { key: "updatedAt", header: "Last Updated" },
-        { key: "actions", header: "", className: "w-[70px]" },
-      ]}
-      renderRow={(campaign, index) => (
-        <CampaignsTableRow
-          key={campaign.id}
-          campaign={campaign}
-          index={index}
-        />
+      columns={TABLE_COLUMNS}
+      renderRow={(campaign) => (
+        <CampaignsTableRow key={campaign.id} campaign={campaign} />
       )}
       EmptyState={EmptyState}
       ErrorState={ErrorState}

@@ -15,7 +15,6 @@ interface DataTableProps<T> {
   title: string | React.ReactNode;
   description: string;
   data: T[];
-  totalCount: number;
   totalPages: number;
   currentPage: number;
   hasNextPage: boolean;
@@ -33,7 +32,6 @@ export function DataTable<T>({
   title,
   description,
   data,
-  totalCount,
   totalPages,
   currentPage,
   hasNextPage,
@@ -48,60 +46,33 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const showError = !loading && error && data.length === 0;
   const showEmpty = !loading && !error && data.length === 0;
+  const showPagination = !loading && totalPages > 1;
+  const showSkeleton = loading && data.length === 0;
 
-  if (showError) {
-    return (
-      <DataTableContainer title={title} description={description}>
-        <ErrorState />
-      </DataTableContainer>
-    );
-  }
+  const renderTableContent = () => {
+    if (showSkeleton) {
+      return <SkeletonRows />;
+    }
 
-  if (showEmpty) {
-    return (
-      <DataTableContainer title={title} description={description}>
-        <EmptyState />
-      </DataTableContainer>
-    );
-  }
+    return data.map((item, idx) => renderRow(item, idx));
+  };
 
-  return (
-    <DataTableContainer
-      title={
-        <>
-          {title}
-          {!loading && data.length > 0 && (
-            <span className="text-sm font-normal text-muted-foreground ml-2">
-              ({totalCount} total)
-            </span>
-          )}
-        </>
-      }
-      description={description}
-    >
+  const renderTable = () => (
+    <>
       <Table>
         <TableHeader className="border-b border-border/50">
           <TableRow>
             {columns.map((col) => (
-              <TableHead
-                key={col.key}
-                className={`font-semibold text-foreground/80 py-4 px-6 ${col.className ?? ""}`}
-              >
+              <TableHead key={col.key} className={`${col.className ?? ""}`}>
                 {col.header}
               </TableHead>
             ))}
           </TableRow>
         </TableHeader>
-        <TableBody>
-          {loading && data.length === 0 ? (
-            <SkeletonRows />
-          ) : (
-            data.map((item, idx) => renderRow(item, idx))
-          )}
-        </TableBody>
+        <TableBody>{renderTableContent()}</TableBody>
       </Table>
 
-      {!loading && totalPages > 1 && (
+      {showPagination && (
         <div className="mt-8 flex justify-center">
           <DataTablePagination
             currentPage={currentPage}
@@ -111,6 +82,24 @@ export function DataTable<T>({
           />
         </div>
       )}
+    </>
+  );
+
+  const getComponent = () => {
+    if (showError) {
+      return <ErrorState />;
+    }
+
+    if (showEmpty) {
+      return <EmptyState />;
+    }
+
+    return renderTable();
+  };
+
+  return (
+    <DataTableContainer title={title} description={description}>
+      {getComponent()}
     </DataTableContainer>
   );
 }

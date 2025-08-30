@@ -1,12 +1,24 @@
 "use client";
 
-import { Calendar, Tag, Filter } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Calendar, Tag, Filter, Check, ChevronDown } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 
 import { SortByFilter } from "@/components/ui/sort-by-filter";
-import { SortOrderButton } from "@/components/ui/sort-order-button";
+import { SortOrderButton, SortOrder } from "@/components/ui/sort-order-button";
 import { CampaignsStatusFilter } from "./campaigns-status-filters";
+
+interface StatusFilterConfig {
+  label: string;
+  bgColor: string;
+}
 
 const sortOptions = [
   { value: "created_at", label: "Created Date", icon: Calendar },
@@ -16,6 +28,24 @@ const sortOptions = [
 ];
 
 function CampaignsFilters() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const status = searchParams.get("status") || "all";
+  const sortBy = searchParams.get("sortBy") || "created_at";
+
+  const updateQueryParam = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (key === "status" && value === "all") {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+
+    router.push(`?${params.toString()}`);
+  };
+
   return (
     <div className="flex items-center gap-3 flex-wrap">
       <CampaignsStatusFilter />
@@ -24,6 +54,8 @@ function CampaignsFilters() {
         <Separator orientation="vertical" className="h-6" />
         <SortOrderButton
           paramKey="sortOrder"
+          selected={sortOrder}
+          onChange={updateQueryParam}
           labels={{ asc: "Oldest", desc: "Newest" }}
         />
       </div>

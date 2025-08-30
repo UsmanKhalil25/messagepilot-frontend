@@ -1,41 +1,42 @@
 import { QuerySearch } from "@/components/ui/query-search";
 import { PageHeader } from "@/components/ui/page-header";
-import { Animated } from "@/components/ui/animated";
 
 import { CreateCampaignDialog } from "./components/create-campaign-dialog";
 import { CampaignStats } from "./components/campaign-stats";
 import { CampaignsFilters } from "./components/campaigns-filters";
 import { CampaignsTable } from "./components/campaigns-table";
 
-export default function CampaignsPage() {
+interface SearchParams {
+  query?: string;
+  page?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}
+
+const DEFAULT_SEARCH_PARAMS: SearchParams = {
+  page: "1",
+  query: "",
+  sortBy: "",
+  sortOrder: "",
+};
+
+export default async function CampaignsPage(props: {
+  searchParams?: Promise<SearchParams>;
+}) {
+  const searchParams = await props.searchParams;
+  const resolvedParams = { ...DEFAULT_SEARCH_PARAMS, ...searchParams };
+
   return (
     <main className="flex-1 space-y-6 p-6">
-      <Animated
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-      >
-        <PageHeader
-          title="Campaigns"
-          description="Manage and monitor all your marketing campaigns"
-          action={<CreateCampaignDialog />}
-        />
-      </Animated>
+      <PageHeader
+        title="Campaigns"
+        description="Manage and monitor all your marketing campaigns"
+        action={<CreateCampaignDialog />}
+      />
 
-      <Animated
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, delay: 0.1 }}
-      >
-        <CampaignStats />
-      </Animated>
+      <CampaignStats />
 
-      <Animated
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, delay: 0.2 }}
-        className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
-      >
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <QuerySearch
           placeholder="Search campaigns by name..."
           paramName="query"
@@ -43,15 +44,8 @@ export default function CampaignsPage() {
         <div className="flex-shrink-0">
           <CampaignsFilters />
         </div>
-      </Animated>
-
-      <Animated
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, delay: 0.3 }}
-      >
-        <CampaignsTable />
-      </Animated>
+      </div>
+      <CampaignsTable searchParams={resolvedParams} />
     </main>
   );
 }

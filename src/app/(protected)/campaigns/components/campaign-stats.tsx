@@ -1,6 +1,6 @@
 "use client";
 
-
+import { motion } from "motion/react";
 import { useQuery } from "@apollo/client";
 import { Target, Play, Calendar, Edit } from "lucide-react";
 
@@ -19,21 +19,26 @@ interface StatCardProps {
 function StatCard({ title, value, icon: Icon, color, loading }: StatCardProps) {
   const StatValue = () => {
     if (loading) {
-      return <Skeleton className="h-6 w-12 rounded" />;
+      return <Skeleton className="h-8 w-6 rounded" />;
     }
     return <div className={`text-2xl font-bold ${color ?? ""}`}>{value}</div>;
   };
 
   return (
-    <Card className="rounded-2xl shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className={`h-4 w-4 ${color || "text-muted-foreground"}`} />
-      </CardHeader>
-      <CardContent>
-        <StatValue />
-      </CardContent>
-    </Card>
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+    >
+      <Card className="rounded-2xl shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <Icon className={`h-4 w-4 ${color || "text-muted-foreground"}`} />
+        </CardHeader>
+        <CardContent>
+          <StatValue />
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 

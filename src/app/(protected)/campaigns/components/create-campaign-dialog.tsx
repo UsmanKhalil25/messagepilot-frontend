@@ -39,7 +39,7 @@ import { CommunicationChannelSelect } from "@/components/ui/communication-channe
 import { capitalize } from "@/common/utils/string.utils";
 import { CAMPAIGN_STATUS_COLORS } from "@/common/constants/campaign-status-colors.constant";
 
-import { useSearchFilters } from "@/hooks/use-search-filters";
+import { useMapFilters } from "@/hooks/use-map-filters";
 
 import {
   CAMPAIGN_SEARCH_PARAMS,
@@ -65,9 +65,10 @@ interface CampaignFormProps {
 }
 
 function CampaignForm({ onSuccess }: CampaignFormProps) {
-  const searchFilters = useSearchFilters({
+  const searchFilters = useMapFilters({
     pageSize: DEFAULT_CAMPAIGN_PAGE_SIZE,
     params: CAMPAIGN_SEARCH_PARAMS,
+    searchParams: {},
   });
 
   const form = useForm<CampaignFormData>({

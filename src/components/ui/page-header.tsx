@@ -1,4 +1,4 @@
-import { motion, MotionProps } from "motion/react";
+import { MotionProps } from "motion/react";
 import { ReactNode } from "react";
 
 interface PageHeaderProps {

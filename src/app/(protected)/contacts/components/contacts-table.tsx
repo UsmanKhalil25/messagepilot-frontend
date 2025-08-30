@@ -7,7 +7,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { ContactsTableRow } from "./conatcts-table-row";
 import { ContactsTableRowSkeleton } from "./contacts-table-row-skeleton";
 
-import { useSearchFilters } from "@/hooks/use-search-filters";
+import { useMapFilters } from "@/hooks/use-map-filters";
 import { CONTACTS } from "@/graphql/queries/contacts";
 import { CONTACT_SEARCH_PARAMS, DEFAULT_CONTACT_PAGE_SIZE } from "../constants";
 
@@ -57,9 +57,10 @@ function ErrorState({
 
 export function ContactsTable() {
   const { data, loading, error } = useQuery(CONTACTS, {
-    variables: useSearchFilters({
+    variables: useMapFilters({
       pageSize: DEFAULT_CONTACT_PAGE_SIZE,
       params: CONTACT_SEARCH_PARAMS,
+      searchParams: {},
     }),
   });
 
@@ -71,7 +72,6 @@ export function ContactsTable() {
       title="All Contacts"
       description="Browse and manage your contacts"
       data={contacts}
-      totalCount={pagination?.total ?? 0}
       totalPages={pagination?.totalPages ?? 1}
       currentPage={pagination?.page ?? 1}
       hasNextPage={pagination?.hasNextPage ?? false}

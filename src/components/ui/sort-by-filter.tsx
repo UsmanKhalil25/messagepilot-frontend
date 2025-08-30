@@ -1,8 +1,11 @@
 "use client";
 
+import { Suspense } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { Skeleton } from "./skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +13,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
+function SortByFilterFallback() {
+  return (
+    <Button
+      variant="ghost"
+      disabled
+      className="h-10 px-4 rounded-none border-0 bg-transparent"
+    >
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-4 w-4 rounded-sm" />
+
+        <Skeleton className="h-4 w-[100px]" />
+        <ChevronDown className="h-4 w-4 opacity-50" />
+      </div>
+    </Button>
+  );
+}
 
 interface SortOption {
   value: string;
@@ -19,32 +39,37 @@ interface SortOption {
 
 interface SortByFilterProps {
   options: SortOption[];
-  selected: string;
   paramKey: string;
-  onChange: (key: string, value: string) => void;
   label?: string;
-  disabled?: boolean;
   className?: string;
 }
 
-function SortByFilter({
+function SortByFilterInner({
   options,
-  selected,
-  paramKey,
-  onChange,
+  paramKey = "sortBy",
   label = "Sort by",
-  disabled = false,
   className,
 }: SortByFilterProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const currentValue = searchParams.get(paramKey) || options[0]?.value;
   const currentOption =
-    options.find((option) => option.value === selected) || options[0];
+    options.find((option) => option.value === currentValue) || options[0];
+
+  const handleChange = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set(paramKey, value);
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          disabled={disabled}
           className={cn(
             "h-10 px-4 rounded-none border-0 bg-transparent hover:bg-background/80",
             className,
@@ -71,7 +96,7 @@ function SortByFilter({
             </>
           )}
           {options.map(({ value, label, icon: Icon }) => {
-            const isSelected = selected === value;
+            const isSelected = currentValue === value;
             return (
               <Button
                 key={value}
@@ -80,7 +105,7 @@ function SortByFilter({
                   "w-full justify-start h-9 px-2",
                   isSelected && "bg-accent text-accent-foreground",
                 )}
-                onClick={() => onChange(paramKey, value)}
+                onClick={() => handleChange(value)}
                 aria-selected={isSelected}
               >
                 <Icon className="h-4 w-4 mr-3 text-muted-foreground" />
@@ -95,4 +120,10 @@ function SortByFilter({
   );
 }
 
-export { SortByFilter };
+export function SortByFilter(props: SortByFilterProps) {
+  return (
+    <Suspense fallback={<SortByFilterFallback />}>
+      <SortByFilterInner {...props} />
+    </Suspense>
+  );
+}
