@@ -27,12 +27,7 @@ import {
 
 import { ContactsTableRow } from "./conatcts-table-row";
 
-interface EmptyStateProps {
-  title?: string;
-  description?: string;
-}
-
-interface ErrorStateProps {
+interface StateProps {
   title?: string;
   description?: string;
 }
@@ -40,7 +35,7 @@ interface ErrorStateProps {
 function EmptyState({
   title = "No contacts yet",
   description = "Get started by adding your first contact to build your audience and manage communications.",
-}: EmptyStateProps) {
+}: StateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="w-16 h-16 mb-6 rounded-full bg-muted flex items-center justify-center">
@@ -57,7 +52,7 @@ function EmptyState({
 function ErrorState({
   title = "Failed to load contacts",
   description = "We're having trouble connecting to our servers. Please check your connection and try again.",
-}: ErrorStateProps) {
+}: StateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="w-16 h-16 mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
