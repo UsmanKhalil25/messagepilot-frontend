@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { ThemeProvider } from "next-themes";
+
 import { Toaster } from "@/components/ui/sonner";
-import { Providers } from "./providers";
 import { cn } from "@/lib/utils";
+
+import { ApolloProvider } from "./providers/apollo-provider";
+
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
           "min-h-svh bg-background",
@@ -35,10 +39,19 @@ export default function RootLayout({
           "antialiased",
         )}
       >
-        <div className="relative flex min-h-svh flex-col bg-background">
-          <Providers>{children}</Providers>
-        </div>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ApolloProvider>
+            <div className="relative flex min-h-svh flex-col bg-background">
+              {children}
+            </div>
+          </ApolloProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

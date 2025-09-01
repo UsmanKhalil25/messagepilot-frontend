@@ -6,15 +6,10 @@ export const CAMPAIGNS = gql(`
       campaigns {
         id
         title
-        description
         status
         channelType
         createdAt
         updatedAt
-        contacts {
-          id
-          name
-        }
       }
       pagination {
         total

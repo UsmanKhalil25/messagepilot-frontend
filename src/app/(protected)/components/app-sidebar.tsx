@@ -50,12 +50,6 @@ const NAV_ITEMS = [
   },
 ];
 
-const USER = {
-  name: "shadcn",
-  email: "m@example.com",
-  avatar: "/avatars/shadcn.jpg",
-};
-
 function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const currentPath = usePathname();
 
@@ -98,7 +92,7 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <UserNav user={USER} />
+        <UserNav />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

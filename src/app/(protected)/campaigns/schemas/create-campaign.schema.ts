@@ -1,16 +1,30 @@
 import { z } from "zod";
-import { CampaignChannel, CampaignStatus } from "@/__generated__/types";
+import { CommunicationChannel, CampaignStatus } from "@/__generated__/types";
 
 export const createCampaignSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
+  title: z
+    .string()
+    .trim()
+    .min(3, "Title must be at least 3 characters")
+    .max(100, "Title cannot exceed 100 characters"),
+
+  description: z
+    .string()
+    .trim()
+    .min(10, "Description must be at least 10 characters")
+    .max(1000, "Description cannot exceed 1000 characters"),
+
   channelType: z.enum(
-    Object.values(CampaignChannel) as [CampaignChannel, ...CampaignChannel[]],
+    Object.values(CommunicationChannel) as [
+      CommunicationChannel,
+      ...CommunicationChannel[],
+    ],
     {
       error: (iss) =>
         iss.input === undefined ? "Channel type is required" : "Invalid input",
     },
   ),
+
   status: z
     .enum(
       Object.values(CampaignStatus) as [CampaignStatus, ...CampaignStatus[]],

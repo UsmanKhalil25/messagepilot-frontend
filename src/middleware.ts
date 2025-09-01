@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const protectedRoutes = ["/dashboard", "/campaigns"];
+const protectedRoutes = ["/dashboard", "/campaigns", "/contacts"];
 const publicRoutes = ["/login", "/register", "/"];
 const cookieName = "auth-token";
 
