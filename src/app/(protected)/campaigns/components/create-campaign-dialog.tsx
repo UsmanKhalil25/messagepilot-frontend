@@ -2,6 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,8 +43,8 @@ import { CAMPAIGN_STATUS_COLORS } from "@/common/constants/campaign-status-color
 import { useMapFilters } from "@/hooks/use-map-filters";
 
 import {
-  CAMPAIGN_SEARCH_PARAMS,
-  DEFAULT_CAMPAIGN_PAGE_SIZE,
+  CAMPAIGNS_SEARCH_PARAMS,
+  DEFAULT_CAMPAIGNS_PAGE_SIZE,
 } from "../constants";
 
 import { CAMPAIGNS } from "@/graphql/queries/campaigns";
@@ -65,10 +66,12 @@ interface CampaignFormProps {
 }
 
 function CampaignForm({ onSuccess }: CampaignFormProps) {
+  const searchParams = useSearchParams();
+
   const searchFilters = useMapFilters({
-    pageSize: DEFAULT_CAMPAIGN_PAGE_SIZE,
-    params: CAMPAIGN_SEARCH_PARAMS,
-    searchParams: {},
+    pageSize: DEFAULT_CAMPAIGNS_PAGE_SIZE,
+    params: CAMPAIGNS_SEARCH_PARAMS,
+    searchParams,
   });
 
   const form = useForm<CampaignFormData>({

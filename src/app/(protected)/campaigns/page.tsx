@@ -2,30 +2,11 @@ import { QuerySearch } from "@/components/ui/query-search";
 import { PageHeader } from "@/components/ui/page-header";
 
 import { CreateCampaignDialog } from "./components/create-campaign-dialog";
-import { CampaignStats } from "./components/campaign-stats";
+import { CampaignsStats } from "./components/campaigns-stats";
 import { CampaignsFilters } from "./components/campaigns-filters";
 import { CampaignsTable } from "./components/campaigns-table";
 
-interface SearchParams {
-  query?: string;
-  page?: string;
-  sortBy?: string;
-  sortOrder?: string;
-}
-
-const DEFAULT_SEARCH_PARAMS: SearchParams = {
-  page: "1",
-  query: "",
-  sortBy: "",
-  sortOrder: "",
-};
-
-export default async function CampaignsPage(props: {
-  searchParams?: Promise<SearchParams>;
-}) {
-  const searchParams = await props.searchParams;
-  const resolvedParams = { ...DEFAULT_SEARCH_PARAMS, ...searchParams };
-
+export default async function CampaignsPage() {
   return (
     <main className="flex-1 space-y-6 p-6">
       <PageHeader
@@ -34,7 +15,7 @@ export default async function CampaignsPage(props: {
         action={<CreateCampaignDialog />}
       />
 
-      <CampaignStats />
+      <CampaignsStats />
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <QuerySearch
@@ -45,7 +26,7 @@ export default async function CampaignsPage(props: {
           <CampaignsFilters />
         </div>
       </div>
-      <CampaignsTable searchParams={resolvedParams} />
+      <CampaignsTable />
     </main>
   );
 }

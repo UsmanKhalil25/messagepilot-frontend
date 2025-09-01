@@ -25,6 +25,12 @@ import {
 import { createContactSchema } from "../schemas/create-contact.schema";
 import { CREATE_CONTACT } from "@/graphql/mutations/create-contact";
 import { CONTACTS } from "@/graphql/queries/contacts";
+import { useSearchParams } from "next/navigation";
+import { useMapFilters } from "@/hooks/use-map-filters";
+import {
+  CONTACTS_SEARCH_PARAMS,
+  DEFAULT_CONTACTS_PAGE_SIZE,
+} from "../constants";
 
 type ContactFormData = CreateContactInput;
 
@@ -95,6 +101,14 @@ function ContactChannelField({
 }
 
 function ContactForm() {
+  const searchParams = useSearchParams();
+
+  const searchFilters = useMapFilters({
+    pageSize: DEFAULT_CONTACTS_PAGE_SIZE,
+    params: CONTACTS_SEARCH_PARAMS,
+    searchParams,
+  });
+
   const form = useForm<ContactFormData>({
     resolver: zodResolver(createContactSchema),
     defaultValues: {
@@ -116,7 +130,7 @@ function ContactForm() {
   const handleSubmit = (data: ContactFormData) => {
     createContact({
       variables: { input: data },
-      refetchQueries: () => [{ query: CONTACTS }],
+      refetchQueries: () => [{ query: CONTACTS, variables: searchFilters }],
       onCompleted: () => {
         toast.success("Contact created successfully");
         form.reset();

@@ -14,7 +14,7 @@ import { formatDistanceToNow } from "date-fns";
 
 import { CAMPAIGN_STATUS_BADGE } from "@/common/constants/campaign-status-badge.constant";
 import { COMMUNICATION_CHANNEL_ICONS } from "@/common/constants/communication-channel-icons.constant";
-import { CAMPAIGN_COLUMN_WIDTHS } from "../constants";
+import { CAMPAIGNS_TABLE_COLUMN_WIDTHS } from "../../constants";
 
 import {
   GetCampaignsQuery,
@@ -88,20 +88,20 @@ export function CampaignsTableRow({ campaign }: CampaignsTableRowProps) {
   return (
     <tr className="group">
       <TableCell
-        className={`font-semibold text-foreground py-4 px-6 ${CAMPAIGN_COLUMN_WIDTHS.title}`}
+        className={`font-semibold text-foreground ${CAMPAIGNS_TABLE_COLUMN_WIDTHS.title}`}
       >
         {campaign.title}
       </TableCell>
-      <TableCell className={CAMPAIGN_COLUMN_WIDTHS.channelType}>
+      <TableCell className={CAMPAIGNS_TABLE_COLUMN_WIDTHS.channelType}>
         <CampaignChannelCell channelType={campaign.channelType} />
       </TableCell>
-      <TableCell className={CAMPAIGN_COLUMN_WIDTHS.status}>
+      <TableCell className={CAMPAIGNS_TABLE_COLUMN_WIDTHS.status}>
         <CampaignStatusCell status={campaign.status} />
       </TableCell>
-      <TableCell className={CAMPAIGN_COLUMN_WIDTHS.updatedAt}>
+      <TableCell className={CAMPAIGNS_TABLE_COLUMN_WIDTHS.updatedAt}>
         <CampaignDateCell date={campaign.updatedAt} />
       </TableCell>
-      <TableCell className={CAMPAIGN_COLUMN_WIDTHS.actions}>
+      <TableCell className={CAMPAIGNS_TABLE_COLUMN_WIDTHS.actions}>
         <CampaignActionsCell />
       </TableCell>
     </tr>

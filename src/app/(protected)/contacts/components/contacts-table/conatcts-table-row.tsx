@@ -1,10 +1,16 @@
-import { motion } from "motion/react";
-import { Ellipsis } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatDistanceToNow } from "date-fns";
 
 import { COMMUNICATION_CHANNEL_ICONS } from "@/common/constants/communication-channel-icons.constant";
 
@@ -12,11 +18,11 @@ import {
   type GetContactsQuery,
   CommunicationChannel,
 } from "@/__generated__/graphql";
+import { CONTACTS_TABLE_COLUMN_WIDTHS } from "../../constants";
 
 type contact = GetContactsQuery["contacts"]["contacts"][number];
 
 interface ContactsTableRowProps {
-  index: number;
   contact: contact;
 }
 
@@ -30,14 +36,25 @@ function DateCell({ date }: { date: string }) {
 
 function ContactActionsCell() {
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      aria-label="contact actions"
-      className="h-8 w-8 p-0 hover:bg-muted/50 transition-colors"
-    >
-      <Ellipsis className="h-4 w-4" />
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100"
+        >
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem>View details</DropdownMenuItem>
+        <DropdownMenuItem>Edit contact</DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="text-destructive">
+          Delete contact
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -62,26 +79,23 @@ function ChannelsCell({ contact }: { contact: contact }) {
   );
 }
 
-export function ContactsTableRow({ contact, index }: ContactsTableRowProps) {
+export function ContactsTableRow({ contact }: ContactsTableRowProps) {
   return (
-    <motion.tr
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.1 }}
-      className="group"
-    >
-      <TableCell className="font-semibold text-foreground py-4 px-6">
+    <tr className="group">
+      <TableCell
+        className={`font-semibold text-foreground ${CONTACTS_TABLE_COLUMN_WIDTHS.name}`}
+      >
         {contact.name}
       </TableCell>
-      <TableCell className="py-4 px-6">
+      <TableCell className={CONTACTS_TABLE_COLUMN_WIDTHS.channels}>
         <ChannelsCell contact={contact} />
       </TableCell>
-      <TableCell className="py-4 px-6">
+      <TableCell className={CONTACTS_TABLE_COLUMN_WIDTHS.updatedAt}>
         <DateCell date={contact.updatedAt} />
       </TableCell>
-      <TableCell className="py-4 px-6">
+      <TableCell className={CONTACTS_TABLE_COLUMN_WIDTHS.actions}>
         <ContactActionsCell />
       </TableCell>
-    </motion.tr>
+    </tr>
   );
 }

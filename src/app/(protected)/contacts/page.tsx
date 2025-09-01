@@ -1,6 +1,3 @@
-"use client";
-import { motion } from "motion/react";
-
 import { QuerySearch } from "@/components/ui/query-search";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -15,19 +12,9 @@ export default function ContactsPage() {
         title="Contacts"
         description="View, organize, and manage all your contacts in one place"
         action={<CreateContactDialog />}
-        animateProps={{
-          initial: { opacity: 0, y: 20 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.3 },
-        }}
       />
 
-      <motion.div
-        className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <QuerySearch
           placeholder="Search contacts by name, email, or sms number..."
           paramName="query"
@@ -36,15 +23,9 @@ export default function ContactsPage() {
         <div className="flex-shrink-0">
           <ContactsFilters />
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-      >
-        <ContactsTable />
-      </motion.div>
+      <ContactsTable />
     </main>
   );
 }

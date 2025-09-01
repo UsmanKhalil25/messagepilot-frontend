@@ -1,11 +1,9 @@
-import { MotionProps } from "motion/react";
 import { ReactNode } from "react";
 
 interface PageHeaderProps {
   title: string;
   description: string;
   action?: ReactNode;
-  animateProps?: MotionProps;
 }
 
 export function PageHeader({ title, description, action }: PageHeaderProps) {

@@ -14,7 +14,7 @@ interface ParamConfig {
 interface UseMapFiltersOptions {
   params?: readonly ParamConfig[];
   pageSize?: number;
-  searchParams: URLSearchParams | Record<string, string>;
+  searchParams: URLSearchParams;
 }
 
 export function useMapFilters({

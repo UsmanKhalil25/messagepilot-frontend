@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useState } from "react";
-
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Papa from "papaparse";
 import { useMutation } from "@apollo/client";
@@ -36,6 +36,12 @@ import { bulkCreateContactSchema } from "../schemas/bulk-create-contact.schema";
 import { transformToContactSchema } from "../utils/transform-to-contact-schema";
 import { BULK_CREATE_CONTACT } from "@/graphql/mutations/bulk-create-contact";
 import { CONTACTS } from "@/graphql/queries/contacts";
+
+import {
+  CONTACTS_SEARCH_PARAMS,
+  DEFAULT_CONTACTS_PAGE_SIZE,
+} from "../constants";
+import { useMapFilters } from "@/hooks/use-map-filters";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -173,11 +179,19 @@ function UploadedFileCard({ file, onRemove }: UploadedFileCardProps) {
 }
 
 function BulkCreateContactForm() {
+  const searchParams = useSearchParams();
+
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [rawContacts, setRawContacts] = useState<CsvParsedRow[]>([]);
   const [validatedContacts, setValidatedContacts] = useState<
     CreateContactInput[]
   >([]);
+
+  const searchFilters = useMapFilters({
+    pageSize: DEFAULT_CONTACTS_PAGE_SIZE,
+    params: CONTACTS_SEARCH_PARAMS,
+    searchParams,
+  });
 
   const [bulkCreateContact, { loading }] = useMutation<
     { bulkCreateContact: BulkCreateContactResponse },
@@ -187,7 +201,8 @@ function BulkCreateContactForm() {
   const handleImport = (contacts: CreateContactInput[]) => {
     bulkCreateContact({
       variables: { input: { contacts } },
-      refetchQueries: () => [{ query: CONTACTS }],
+
+      refetchQueries: () => [{ query: CONTACTS, variables: searchFilters }],
       onCompleted: (data) => {
         const response = data.bulkCreateContact;
 
